@@ -1,0 +1,228 @@
+import fs from "fs";
+import csv from "csv-parser";
+import { DatasetRecord } from "../models/DatasetRecord.js";
+
+export const REQUIRED_COLUMNS = [
+  "date",
+  "daily_rmc_volume_m3",
+  "project_size",
+  "day_in_project",
+  "latitude",
+  "longitude",
+  "cement_kg_m3",
+  "aggregate_10mm_pct",
+  "aggregate_20mm_pct",
+  "agg_moisture_content_pct",
+  "water_binder_ratio",
+  "slump_mm",
+  "batching_time_min",
+  "transport_time_min",
+  "truck_capacity_m3"
+];
+
+const parseNumber = (value, key) => {
+  const cleaned = String(value ?? "")
+    .replace(/,/g, "")
+    .replace(/%/g, "")
+    .trim();
+
+  const parsed = Number(cleaned);
+  if (Number.isNaN(parsed)) {
+    throw new Error(`Invalid numeric value in column '${key}': ${value}`);
+  }
+  return parsed;
+};
+
+const parseDateFlexible = (value) => {
+  const raw = String(value || "").trim();
+  if (!raw) {
+    throw new Error(`Invalid date value: ${value}`);
+  }
+
+  const direct = new Date(raw);
+  if (!Number.isNaN(direct.getTime())) {
+    return direct;
+  }
+
+  const dayFirst = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (dayFirst) {
+    const day = Number(dayFirst[1]);
+    const month = Number(dayFirst[2]);
+    const yearRaw = Number(dayFirst[3]);
+    const year = yearRaw < 100 ? 2000 + yearRaw : yearRaw;
+    const parsed = new Date(Date.UTC(year, month - 1, day));
+
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+
+  throw new Error(`Invalid date value: ${value}`);
+};
+
+const stableBucketFromText = (text) => {
+  const source = String(text || "unknown");
+  let hash = 0;
+  for (let i = 0; i < source.length; i += 1) {
+    hash = (hash * 31 + source.charCodeAt(i)) % 997;
+  }
+
+  // Keep encoded category on a compact numeric scale.
+  return 1 + (hash % 40) / 10;
+};
+
+export const parseProjectSizeValue = (value) => {
+  if (value === null || value === undefined || String(value).trim() === "") {
+    throw new Error("Invalid project_size value: empty");
+  }
+
+  const direct = Number(value);
+  if (!Number.isNaN(direct)) {
+    return direct;
+  }
+
+  const normalized = String(value || "").trim().toLowerCase();
+  const map = {
+    micro: 0.6,
+    tiny: 0.8,
+    small: 1.2,
+    medium: 2.2,
+    large: 3.5,
+    mega: 5.0
+  };
+
+  if (map[normalized] !== undefined) {
+    return map[normalized];
+  }
+
+  const numericFromText = normalized.match(/\d+(\.\d+)?/);
+  if (numericFromText) {
+    return Number(numericFromText[0]);
+  }
+
+  return stableBucketFromText(normalized);
+};
+
+export const normalizeDatasetRow = (row, batchId) => {
+  const parsedDate = parseDateFlexible(row.date);
+
+  return {
+    batchId,
+    date: parsedDate,
+    daily_rmc_volume_m3: parseNumber(row.daily_rmc_volume_m3, "daily_rmc_volume_m3"),
+    project_size: parseProjectSizeValue(row.project_size),
+    day_in_project: parseNumber(row.day_in_project, "day_in_project"),
+    latitude: parseNumber(row.latitude, "latitude"),
+    longitude: parseNumber(row.longitude, "longitude"),
+    cement_kg_m3: parseNumber(row.cement_kg_m3, "cement_kg_m3"),
+    aggregate_10mm_pct: parseNumber(row.aggregate_10mm_pct, "aggregate_10mm_pct"),
+    aggregate_20mm_pct: parseNumber(row.aggregate_20mm_pct, "aggregate_20mm_pct"),
+    agg_moisture_content_pct: parseNumber(row.agg_moisture_content_pct, "agg_moisture_content_pct"),
+    water_binder_ratio: parseNumber(row.water_binder_ratio, "water_binder_ratio"),
+    slump_mm: parseNumber(row.slump_mm, "slump_mm"),
+    batching_time_min: parseNumber(row.batching_time_min, "batching_time_min"),
+    transport_time_min: parseNumber(row.transport_time_min, "transport_time_min"),
+    truck_capacity_m3: parseNumber(row.truck_capacity_m3, "truck_capacity_m3")
+  };
+};
+
+export const parseCsvFile = (filePath) =>
+  new Promise((resolve, reject) => {
+    const rows = [];
+    let headersChecked = false;
+
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on("headers", (headers) => {
+        headersChecked = true;
+        const missing = REQUIRED_COLUMNS.filter((column) => !headers.includes(column));
+        if (missing.length) {
+          reject(new Error(`Missing required columns: ${missing.join(", ")}`));
+        }
+      })
+      .on("data", (data) => rows.push(data))
+      .on("error", reject)
+      .on("end", () => {
+        if (!headersChecked) {
+          reject(new Error("CSV file does not contain headers."));
+          return;
+        }
+        resolve(rows);
+      });
+  });
+
+export const saveDatasetBatch = async (rawRows) => {
+  const batchId = `batch_${Date.now()}`;
+  const rows = [];
+  let skipped = 0;
+
+  rawRows.forEach((row) => {
+    try {
+      rows.push(normalizeDatasetRow(row, batchId));
+    } catch (error) {
+      skipped += 1;
+    }
+  });
+
+  if (!rows.length) {
+    throw new Error("No valid rows found after preprocessing. Check CSV date/number formats.");
+  }
+
+  await DatasetRecord.deleteMany({});
+  await DatasetRecord.insertMany(rows, { ordered: false });
+
+  // ✅ Invalidate the in-process cache after dataset update
+  _datasetCache = null;
+  _cacheTimestamp = 0;
+
+  return { batchId, count: rows.length, skipped };
+};
+
+export const addDatasetRecord = async (rawRow) => {
+  const latest = await DatasetRecord.findOne({}).sort({ createdAt: -1 }).lean();
+  const batchId = latest?.batchId || `batch_${Date.now()}`;
+  const row = normalizeDatasetRow(rawRow, batchId);
+  const created = await DatasetRecord.create(row);
+
+  // ✅ Invalidate cache when a new record is added
+  _datasetCache = null;
+  _cacheTimestamp = 0;
+
+  return created.toObject();
+};
+
+// ✅ FIX: In-process cache for getActiveDataset — prevents repeated MongoDB queries
+// on every API request (dashboard, forecast, carbon, procurement all call this).
+// Cache TTL: 30 seconds — safe because dataset only changes on upload/add-record.
+let _datasetCache = null;
+let _cacheTimestamp = 0;
+const CACHE_TTL_MS = 30 * 1000;
+
+export const getActiveDataset = async () => {
+  const now = Date.now();
+  if (_datasetCache && now - _cacheTimestamp < CACHE_TTL_MS) {
+    return _datasetCache;
+  }
+  const rows = await DatasetRecord.find({}).sort({ date: 1 }).lean();
+  _datasetCache = rows;
+  _cacheTimestamp = now;
+  return rows;
+};
+
+export const getDatasetSnapshotStats = (rows) => {
+  if (!rows.length) {
+    return null;
+  }
+
+  const latest = rows[rows.length - 1];
+  const avg = (key) => rows.reduce((sum, row) => sum + row[key], 0) / rows.length;
+
+  return {
+    startDate: rows[0].date,
+    endDate: latest.date,
+    totalRows: rows.length,
+    avgDemand: avg("daily_rmc_volume_m3"),
+    avgTransportTime: avg("transport_time_min"),
+    avgCementKgM3: avg("cement_kg_m3")
+  };
+};

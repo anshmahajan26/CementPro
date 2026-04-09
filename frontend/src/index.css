@@ -1,0 +1,59 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 206 57% 97%;
+  --foreground: 222 47% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 12%;
+  --primary: 196 92% 43%;
+  --primary-foreground: 0 0% 100%;
+  --muted: 216 34% 92%;
+  --muted-foreground: 221 22% 34%;
+  --border: 214 31% 82%;
+  --accent: 340 84% 60%;
+}
+
+.dark {
+  --background: 224 31% 10%;
+  --foreground: 210 36% 94%;
+  --card: 223 33% 13%;
+  --card-foreground: 210 36% 94%;
+  --primary: 190 90% 56%;
+  --primary-foreground: 224 31% 12%;
+  --muted: 223 20% 22%;
+  --muted-foreground: 215 17% 74%;
+  --border: 222 21% 30%;
+  --accent: 340 84% 64%;
+}
+
+body {
+  @apply bg-background text-foreground font-body;
+  min-height: 100vh;
+  background-image: radial-gradient(circle at 8% 12%, rgba(6, 182, 212, 0.2), transparent 30%),
+    radial-gradient(circle at 90% 8%, rgba(236, 72, 153, 0.18), transparent 28%),
+    radial-gradient(circle at 40% 100%, rgba(59, 130, 246, 0.15), transparent 40%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(15, 23, 42, 0.06));
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.grid-overlay {
+  background-image: linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.glass {
+  backdrop-filter: blur(16px);
+  background: linear-gradient(130deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.56));
+}
+
+.dark .glass {
+  background: linear-gradient(130deg, rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.58));
+}

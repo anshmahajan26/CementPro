@@ -1,0 +1,13 @@
+{
+  "name": "smart-rmc-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "dev": "concurrently -n BACKEND,FRONTEND -c green,cyan \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "dev:all": "concurrently -n BACKEND,FRONTEND,ML -c green,cyan,magenta \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\" \"python -m uvicorn main:app --app-dir ml-model --port 8000\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
