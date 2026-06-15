@@ -27,7 +27,7 @@ ml-model/data/latest.csv
 
 # Build output
 build/
-dist/
+# dist/
 .next/
 out/
 
