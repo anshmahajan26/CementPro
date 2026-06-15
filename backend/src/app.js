@@ -36,6 +36,9 @@ app.use(morgan("dev"));
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "Backend is running", timestamp: new Date().toISOString() });
 });
+app.get("/", (req, res) => {
+  res.send("CementPro Backend Running 🚀");
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/data", dataRoutes);
