@@ -1,17 +1,18 @@
 import axios from "axios";
 
-let baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-
-if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
-  baseUrl = `${window.location.origin}/api`;
-} else {
-  if (baseUrl && !baseUrl.endsWith("/api") && !baseUrl.endsWith("/api/")) {
-    baseUrl = baseUrl.replace(/\/$/, "") + "/api";
-  }
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// API Base URL resolution (build-time, not runtime)
+//
+// ➊ LOCAL DEV  → no VITE_API_URL set → falls back to http://localhost:5000/api
+// ➋ PRODUCTION → Render sets VITE_API_URL=https://cementpro-backend.onrender.com
+//                Vite inlines this at BUILD time, so no localhost leaks into prod
+// ─────────────────────────────────────────────────────────────────────────────
+const API_BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL.replace(/\/+$/, "")}/api`
+  : "http://localhost:5000/api";
 
 const api = axios.create({
-  baseURL: baseUrl
+  baseURL: API_BASE_URL
 });
 
 // ✅ Request interceptor — attach JWT token
@@ -23,22 +24,19 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ✅ FIX: Response interceptor — handle 401 auto-logout + surface meaningful network errors
+// ✅ Response interceptor — handle 401 auto-logout + surface meaningful network errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid — clear auth state and redirect to login
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      // Only redirect if not already on auth pages
       const pathname = window.location.pathname;
       if (pathname !== "/login" && pathname !== "/register" && pathname !== "/forgot-password") {
         window.location.href = "/login";
       }
     }
 
-    // Normalise network errors so components get a readable message
     if (!error.response) {
       error.message = "Network error — check your connection or server status.";
     }
@@ -48,3 +46,4 @@ api.interceptors.response.use(
 );
 
 export default api;
+export { API_BASE_URL };

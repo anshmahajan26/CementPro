@@ -1,1 +1,0 @@
-import{aD as o}from"./vendor-xynfUH1O.js";import{c as s}from"./index-CIhFQ76_.js";const a=({className:e,children:r})=>o.jsx("span",{className:s("inline-flex items-center rounded-full border border-border bg-muted px-2.5 py-1 text-xs font-semibold tracking-wide",e),children:r});export{a as B};

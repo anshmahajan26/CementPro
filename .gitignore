@@ -31,6 +31,10 @@ build/
 .next/
 out/
 
+# Frontend built assets — built on Render server-side (not committed)
+# This prevents localhost-baked production builds from being shipped to git
+backend/src/public/dist/
+
 # Log files
 npm-debug.log*
 yarn-debug.log*
