@@ -23,8 +23,7 @@
     "morgan": "^1.10.0",
     "multer": "^2.0.0",
     "nodemailer": "^8.0.4",
-    "pdfkit": "^0.17.0",
-    "smart-rmc-monorepo": "file:.."
+    "pdfkit": "^0.17.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
