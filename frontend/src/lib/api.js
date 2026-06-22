@@ -1,15 +1,18 @@
 import axios from "axios";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// API Base URL resolution (build-time, not runtime)
+// API Base URL resolution
 //
-// ➊ LOCAL DEV  → no VITE_API_URL set → falls back to http://localhost:5000/api
-// ➋ PRODUCTION → Render sets VITE_API_URL=https://cementpro-backend.onrender.com
-//                Vite inlines this at BUILD time, so no localhost leaks into prod
+// ➊ LOCAL DEV  → VITE_API_URL=http://localhost:5000 (set in .env)
+//                → resolves to http://localhost:5000/api
+// ➋ PRODUCTION → If VITE_API_URL is set on Render, use it.
+//                Otherwise fall back to a RELATIVE "/api" URL so the request
+//                always goes to the same origin that served the page —
+//                no localhost ever leaks into the production bundle.
 // ─────────────────────────────────────────────────────────────────────────────
 const API_BASE_URL = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL.replace(/\/+$/, "")}/api`
-  : "http://localhost:5000/api";
+  : "/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL
