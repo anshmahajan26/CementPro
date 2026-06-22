@@ -57,9 +57,7 @@ const AdminPanelPage = () => {
     try {
       setError("");
       setMessage("");
-      const response = await api.post("/data/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
+      const response = await api.post("/data/upload", formData);
       setMessage(response.data.message);
       await loadDataset();
     } catch (err) {
