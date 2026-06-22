@@ -30,10 +30,6 @@ export default defineConfig({
           if (id.includes("recharts") || id.includes("victory-vendor")) {
             return "vendor-recharts";
           }
-          // React core → long-lived cache entry
-          if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/")) {
-            return "vendor-react";
-          }
           // Everything else in node_modules → vendor chunk
           if (id.includes("node_modules")) {
             return "vendor";
