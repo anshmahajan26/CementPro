@@ -58,7 +58,8 @@ app.use("/api/reports", reportRoutes);
 
 app.use(express.static(path.join(__dirname, "public/dist")));
 
-app.get("*", (req, res) => {
+// SPA fallback — only for non-API routes so missing /api/* paths get a proper 404
+app.get(/^(?!\/api\/).*$/, (req, res) => {
   res.sendFile(path.join(__dirname, "public/dist/index.html"));
 });
 
