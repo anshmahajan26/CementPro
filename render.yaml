@@ -12,9 +12,9 @@ services:
   - type: web
     name: cement-backend
     runtime: node
-    rootDir: .
-    buildCommand: npm install --prefix backend && npm install --prefix frontend && VITE_API_URL=$VITE_API_URL npm run build --prefix frontend
-    startCommand: node backend/src/server.js
+    rootDir: backend
+    buildCommand: npm install && cd ../frontend && npm install && VITE_API_URL=$VITE_API_URL npx vite build
+    startCommand: node src/server.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -30,7 +30,7 @@ services:
         sync: false
       - key: FRONTEND_URL
         sync: false
-      # VITE_API_URL is used by the frontend build step above
-      # Set this in Render Dashboard to: https://cementpro-backend.onrender.com
+      # Set this in Render Dashboard → cement-backend → Environment
+      # Value: https://cementpro-backend.onrender.com
       - key: VITE_API_URL
         sync: false
