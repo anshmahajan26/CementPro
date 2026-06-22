@@ -13,7 +13,7 @@ services:
     name: cement-backend
     runtime: node
     rootDir: backend
-    buildCommand: npm install && cd ../frontend && npm install && npx vite build
+    buildCommand: npm install && cd ../frontend && npm install && npx vite build && mkdir -p ../backend/src/public && cp -r dist ../backend/src/public/
     startCommand: node src/server.js
     envVars:
       - key: NODE_ENV
