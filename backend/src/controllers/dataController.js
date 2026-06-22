@@ -26,21 +26,25 @@ const csvEscape = (value) => {
 };
 
 const syncMlDataFileFromRows = (rows) => {
-  fs.mkdirSync(path.dirname(ML_DATA_FILE), { recursive: true });
+  try {
+    fs.mkdirSync(path.dirname(ML_DATA_FILE), { recursive: true });
 
-  const header = REQUIRED_COLUMNS.join(",");
-  const body = rows
-    .map((row) =>
-      REQUIRED_COLUMNS.map((col) => {
-        if (col === "date") {
-          return csvEscape(new Date(row.date));
-        }
-        return csvEscape(row[col]);
-      }).join(",")
-    )
-    .join("\n");
+    const header = REQUIRED_COLUMNS.join(",");
+    const body = rows
+      .map((row) =>
+        REQUIRED_COLUMNS.map((col) => {
+          if (col === "date") {
+            return csvEscape(new Date(row.date));
+          }
+          return csvEscape(row[col]);
+        }).join(",")
+      )
+      .join("\n");
 
-  fs.writeFileSync(ML_DATA_FILE, `${header}\n${body}`, "utf-8");
+    fs.writeFileSync(ML_DATA_FILE, `${header}\n${body}`, "utf-8");
+  } catch (error) {
+    console.warn(`[Data Controller Warning] Could not sync local ML_DATA_FILE: ${error.message}`);
+  }
 };
 
 export const uploadDataset = async (req, res) => {
@@ -52,8 +56,12 @@ export const uploadDataset = async (req, res) => {
     const rows = await parseCsvFile(req.file.path);
     const saveInfo = await saveDatasetBatch(rows);
 
-    fs.mkdirSync(path.dirname(ML_DATA_FILE), { recursive: true });
-    fs.copyFileSync(req.file.path, ML_DATA_FILE);
+    try {
+      fs.mkdirSync(path.dirname(ML_DATA_FILE), { recursive: true });
+      fs.copyFileSync(req.file.path, ML_DATA_FILE);
+    } catch (fsError) {
+      console.warn(`[Data Controller Warning] Could not copy uploaded dataset to local ML_DATA_FILE: ${fsError.message}`);
+    }
 
     const dbRows = await getActiveDataset();
     const trainResult = await trainModel(dbRows);
