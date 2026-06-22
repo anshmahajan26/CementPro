@@ -19,6 +19,8 @@ export default defineConfig({
     dedupe: ["react", "react-dom", "react-leaflet"]
   },
   build: {
+    outDir: path.resolve(__dirname, "../backend/src/public/dist"),
+    emptyOutDir: true,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
