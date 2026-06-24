@@ -60,10 +60,12 @@ app.use("/api/reports", reportRoutes);
 
 // Try multiple candidate paths — Render's runtime cwd may differ from build-time cwd.
 const candidatePaths = [
-  path.join(__dirname, "public", "dist"),          // backend/src/public/dist
-  path.join(__dirname, "..", "public", "dist"),     // backend/public/dist  (if rootDir shifts)
-  path.join(process.cwd(), "src", "public", "dist"), // cwd()/src/public/dist
-  path.join(process.cwd(), "public", "dist"),        // cwd()/public/dist
+  path.join(__dirname, "public", "dist"),              // backend/src/public/dist  (if cp'd)
+  path.join(__dirname, "..", "public", "dist"),         // backend/public/dist
+  path.join(__dirname, "..", "..", "frontend", "dist"), // frontend/dist  (direct — no copy needed)
+  path.join(process.cwd(), "src", "public", "dist"),   // cwd()/src/public/dist
+  path.join(process.cwd(), "public", "dist"),           // cwd()/public/dist
+  path.join(process.cwd(), "..", "frontend", "dist"),   // cwd()/../frontend/dist  (Render monorepo)
 ];
 
 let distPath = candidatePaths[0]; // default
