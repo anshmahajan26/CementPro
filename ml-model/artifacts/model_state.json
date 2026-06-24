@@ -1,0 +1,75 @@
+{
+  "best_model": "Hybrid_XGB_RF",
+  "metrics": {
+    "XGBoost": {
+      "RMSE": 3.7163,
+      "MAE": 1.6042,
+      "MAPE": 1.5709
+    },
+    "RandomForest": {
+      "RMSE": 3.692,
+      "MAE": 1.6314,
+      "MAPE": 1.5705
+    },
+    "Hybrid_XGB_RF": {
+      "RMSE": 3.6834,
+      "MAE": 1.5931,
+      "MAPE": 1.5557
+    },
+    "LinearRegression": {
+      "RMSE": 7.9928,
+      "MAE": 6.9611,
+      "MAPE": 3.441
+    },
+    "LSTM": {
+      "RMSE": 259.4307,
+      "MAE": 221.0098,
+      "MAPE": 145.1089
+    }
+  },
+  "hybrid_weights": {
+    "xgb": 0.35,
+    "rf": 0.65
+  },
+  "feature_columns": [
+    "project_size",
+    "day_in_project",
+    "latitude",
+    "longitude",
+    "cement_kg_m3",
+    "aggregate_10mm_pct",
+    "aggregate_20mm_pct",
+    "agg_moisture_content_pct",
+    "water_binder_ratio",
+    "slump_mm",
+    "batching_time_min",
+    "transport_time_min",
+    "truck_capacity_m3",
+    "date_year",
+    "date_month",
+    "date_day",
+    "date_dayofweek",
+    "date_weekofyear"
+  ],
+  "feature_importance": {
+    "project_size": 9.999999974752427e-07,
+    "day_in_project": 1.2999999853491317e-05,
+    "latitude": 1.1000000085914508e-05,
+    "longitude": 1.700000029813964e-05,
+    "cement_kg_m3": 0.3281010091304779,
+    "aggregate_10mm_pct": 0.28187501430511475,
+    "aggregate_20mm_pct": 0.25296100974082947,
+    "agg_moisture_content_pct": 1.2999999853491317e-05,
+    "water_binder_ratio": 0.11789800226688385,
+    "slump_mm": 1.2999999853491317e-05,
+    "batching_time_min": 0.019009999930858612,
+    "transport_time_min": 1.2999999853491317e-05,
+    "truck_capacity_m3": 1.2999999853491317e-05,
+    "date_year": 7.000000096013537e-06,
+    "date_month": 7.999999979801942e-06,
+    "date_day": 1.4000000192027073e-05,
+    "date_dayofweek": 1.8000000636675395e-05,
+    "date_weekofyear": 1.2999999853491317e-05
+  },
+  "seq_len": 7
+}

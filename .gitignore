@@ -3,18 +3,18 @@ node_modules/
 jspm_packages/
 
 # Python / ML
-__pycache__/
-*.py[cod]
-*$py.class
+# __pycache__/
+# *.py[cod]
+# *$py.class
 *.so
 .Python
 env/
 venv/
 .venv/
 ENV/
-ml-model/artifacts/
-ml-model/data/latest.csv
-.pytest_cache/
+# ml-model/artifacts/
+# ml-model/data/latest.csv
+# .pytest_cache/
 
 # dotenv environment variable files
 .env
@@ -33,7 +33,7 @@ out/
 
 # Frontend built assets — built on Render server-side (not committed)
 # This prevents localhost-baked production builds from being shipped to git
-backend/src/public/dist/
+# backend/src/public/dist/
 
 # Log files
 npm-debug.log*
@@ -43,8 +43,8 @@ logs/
 *.log
 
 # Backend specific
-backend/uploads/
-backend/exports/
+# backend/uploads/
+# backend/exports/
 
 # Editor directories and files
 .vscode/*
