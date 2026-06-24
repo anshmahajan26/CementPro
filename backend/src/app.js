@@ -9,6 +9,7 @@ import carbonRoutes from "./routes/carbonRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -57,14 +58,39 @@ app.use("/api/reports", reportRoutes);
 
 /* ---------- React Frontend ---------- */
 
-const distPath = path.join(__dirname, "public", "dist");
+// Try multiple candidate paths — Render's runtime cwd may differ from build-time cwd.
+const candidatePaths = [
+  path.join(__dirname, "public", "dist"),          // backend/src/public/dist
+  path.join(__dirname, "..", "public", "dist"),     // backend/public/dist  (if rootDir shifts)
+  path.join(process.cwd(), "src", "public", "dist"), // cwd()/src/public/dist
+  path.join(process.cwd(), "public", "dist"),        // cwd()/public/dist
+];
+
+let distPath = candidatePaths[0]; // default
+for (const candidate of candidatePaths) {
+  const indexFile = path.join(candidate, "index.html");
+  if (fs.existsSync(indexFile)) {
+    distPath = candidate;
+    console.log(`✅ Frontend found at: ${candidate}`);
+    break;
+  } else {
+    console.log(`❌ No index.html at: ${indexFile}`);
+  }
+}
+
 app.use(express.static(distPath));
 
 // SPA fallback — serves index.html for every GET request that didn't match
 // an API route or a static file above.  This lets React Router handle
 // client-side paths like /forecast, /admin, etc. on hard refresh.
 app.get("*", (req, res) => {
-  res.sendFile(path.join(distPath, "index.html"));
+  const indexHtml = path.join(distPath, "index.html");
+  res.sendFile(indexHtml, (err) => {
+    if (err) {
+      console.error(`SPA fallback failed for ${req.originalUrl}: ${err.message} (tried: ${indexHtml})`);
+      res.status(404).send("Frontend build not found. Redeploy may be needed.");
+    }
+  });
 });
 
 /* ---------- Global Error Handler ---------- */

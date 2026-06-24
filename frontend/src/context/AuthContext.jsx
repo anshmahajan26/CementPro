@@ -28,10 +28,15 @@ export const AuthProvider = ({ children }) => {
         setUser(data.user);
         localStorage.setItem("user", JSON.stringify(data.user));
       } catch (error) {
-        setToken("");
-        setUser(null);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        // Only clear auth on a definitive 401 (token expired / invalid).
+        // Network errors (cold-start, offline, timeout) should NOT log
+        // the user out — keep the cached session until the server responds.
+        if (error.response?.status === 401) {
+          setToken("");
+          setUser(null);
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+        }
       }
     };
 
