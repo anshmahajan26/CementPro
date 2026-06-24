@@ -57,11 +57,14 @@ app.use("/api/reports", reportRoutes);
 
 /* ---------- React Frontend ---------- */
 
-app.use(express.static(path.join(__dirname, "public/dist")));
+const distPath = path.join(__dirname, "public", "dist");
+app.use(express.static(distPath));
 
-// SPA fallback — only for non-API routes so missing /api/* paths get a proper 404
-app.get(/^(?!\/api\/).*$/, (req, res) => {
-  res.sendFile(path.join(__dirname, "public/dist/index.html"));
+// SPA fallback — serves index.html for every GET request that didn't match
+// an API route or a static file above.  This lets React Router handle
+// client-side paths like /forecast, /admin, etc. on hard refresh.
+app.get("*", (req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
 });
 
 /* ---------- Global Error Handler ---------- */
