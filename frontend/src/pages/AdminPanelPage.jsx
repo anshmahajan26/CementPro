@@ -9,6 +9,8 @@ const AdminPanelPage = () => {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [dataset, setDataset] = useState(null);
   const [recordForm, setRecordForm] = useState({
     date: "",
@@ -57,11 +59,29 @@ const AdminPanelPage = () => {
     try {
       setError("");
       setMessage("");
-      const response = await api.post("/data/upload", formData);
+      setIsUploading(true);
+      setUploadProgress(0);
+
+      const response = await api.post("/data/upload", formData, {
+        onUploadProgress: (progressEvent) => {
+          // Cap at 90% while waiting for server to process the CSV
+          const percentCompleted = Math.round((progressEvent.loaded * 90) / progressEvent.total);
+          setUploadProgress(percentCompleted);
+        }
+      });
+      
+      setUploadProgress(100);
       setMessage(response.data.message);
       await loadDataset();
+
+      setTimeout(() => {
+        setIsUploading(false);
+        setUploadProgress(0);
+      }, 1000);
     } catch (err) {
       setError(err.response?.data?.message || "Upload failed");
+      setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -202,8 +222,21 @@ const AdminPanelPage = () => {
           <CardTitle>Dataset Upload & Training</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <input type="file" accept=".csv" onChange={(e) => setFile(e.target.files?.[0] || null)} className="w-full text-sm" />
-          <Button onClick={handleUpload}>Upload CSV and Train Models</Button>
+          <input type="file" accept=".csv" onChange={(e) => setFile(e.target.files?.[0] || null)} className="w-full text-sm" disabled={isUploading} />
+          
+          {isUploading && (
+            <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-primary transition-all duration-300 ease-out" 
+                style={{ width: `${uploadProgress}%` }}
+              />
+            </div>
+          )}
+
+          <Button onClick={handleUpload} disabled={isUploading || !file}>
+            {isUploading ? `Uploading... ${uploadProgress}%` : "Upload CSV and Train Models"}
+          </Button>
+          
           {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
           {error ? <p className="text-sm text-red-500">{error}</p> : null}
         </CardContent>
