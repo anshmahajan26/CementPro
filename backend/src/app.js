@@ -21,7 +21,7 @@ const ALLOWED_ORIGINS = [
   "http://localhost:5173",
   "http://localhost:4173",
   "http://localhost:3000",
-  "https://cementpro-frontend.onrender.com",
+  "https://cementpro-2.onrender.com",
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
