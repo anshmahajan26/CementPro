@@ -64,15 +64,16 @@ export const uploadDataset = async (req, res) => {
     }
 
     const dbRows = await getActiveDataset();
-    const trainResult = await trainModel(dbRows);
+    
+    // 🔥 FIX: Fire-and-forget training to prevent 502 Gateway Timeout on Render (max 30-60s)
+    trainModel(dbRows).catch((err) => console.error("[Background Training Error]:", err.message));
 
     return res.status(201).json({
       message:
         saveInfo.skipped > 0
-          ? `Dataset uploaded with preprocessing (${saveInfo.skipped} rows skipped) and model trained`
-          : "Dataset uploaded and model trained",
-      upload: saveInfo,
-      trainResult
+          ? `Dataset uploaded with preprocessing (${saveInfo.skipped} rows skipped). Model training started in background.`
+          : "Dataset uploaded. Model training started in background.",
+      upload: saveInfo
     });
   } catch (error) {
     return res.status(400).json({ message: error.message });
@@ -86,15 +87,16 @@ export const addDailyRecord = async (req, res) => {
 
     syncMlDataFileFromRows(rows);
     const useDbRows = rows.length >= 20;
-    const trainResult = await trainModel(useDbRows ? rows : []);
+    
+    // 🔥 FIX: Fire-and-forget training to prevent timeout
+    trainModel(useDbRows ? rows : []).catch((err) => console.error("[Background Training Error]:", err.message));
 
     return res.status(201).json({
       message: useDbRows
-        ? "Daily record added and model retrained"
-        : "Daily record added. Model retrained using available ML data source until Mongo reaches 20 rows.",
+        ? "Daily record added and model retraining started in background"
+        : "Daily record added. Model retraining started in background.",
       createdRecord,
-      totalRows: rows.length,
-      trainResult
+      totalRows: rows.length
     });
   } catch (error) {
     return res.status(400).json({ message: error.message });
