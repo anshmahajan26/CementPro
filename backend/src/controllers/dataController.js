@@ -53,27 +53,37 @@ export const uploadDataset = async (req, res) => {
       return res.status(400).json({ message: "CSV file is required" });
     }
 
-    const rows = await parseCsvFile(req.file.path);
-    const saveInfo = await saveDatasetBatch(rows);
+    const filePath = req.file.path;
 
-    try {
-      fs.mkdirSync(path.dirname(ML_DATA_FILE), { recursive: true });
-      fs.copyFileSync(req.file.path, ML_DATA_FILE);
-    } catch (fsError) {
-      console.warn(`[Data Controller Warning] Could not copy uploaded dataset to local ML_DATA_FILE: ${fsError.message}`);
-    }
+    // 🔥 FIX: Move the ENTIRE parsing and saving process to the background
+    // A 26MB CSV takes too long to parse and save to MongoDB synchronously, causing Render 502 Timeout.
+    (async () => {
+      try {
+        console.log(`[Background] Starting to process uploaded file: ${filePath}`);
+        const rows = await parseCsvFile(filePath);
+        console.log(`[Background] Parsed ${rows.length} rows. Saving to DB...`);
+        const saveInfo = await saveDatasetBatch(rows);
+        console.log(`[Background] Saved to DB. Copied: ${saveInfo.count}, Skipped: ${saveInfo.skipped}.`);
 
-    const dbRows = await getActiveDataset();
-    
-    // 🔥 FIX: Fire-and-forget training to prevent 502 Gateway Timeout on Render (max 30-60s)
-    trainModel(dbRows).catch((err) => console.error("[Background Training Error]:", err.message));
+        try {
+          fs.mkdirSync(path.dirname(ML_DATA_FILE), { recursive: true });
+          fs.copyFileSync(filePath, ML_DATA_FILE);
+        } catch (fsError) {
+          console.warn(`[Background Warning] Could not copy dataset to local ML_DATA_FILE: ${fsError.message}`);
+        }
 
-    return res.status(201).json({
-      message:
-        saveInfo.skipped > 0
-          ? `Dataset uploaded with preprocessing (${saveInfo.skipped} rows skipped). Model training started in background.`
-          : "Dataset uploaded. Model training started in background.",
-      upload: saveInfo
+        console.log(`[Background] Triggering model training...`);
+        const dbRows = await getActiveDataset();
+        await trainModel(dbRows);
+        console.log(`[Background] Processing and model training fully complete!`);
+      } catch (err) {
+        console.error(`[Background Error] Failed to process dataset:`, err.message);
+      }
+    })();
+
+    return res.status(202).json({
+      message: "File uploaded successfully! Data processing and model training are running in the background. Your dashboard will update in a few minutes.",
+      upload: { status: "processing" }
     });
   } catch (error) {
     return res.status(400).json({ message: error.message });
