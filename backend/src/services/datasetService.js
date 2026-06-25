@@ -126,57 +126,87 @@ export const normalizeDatasetRow = (row, batchId) => {
   };
 };
 
-export const parseCsvFile = (filePath) =>
-  new Promise((resolve, reject) => {
-    const rows = [];
-    let headersChecked = false;
+export const streamAndSaveCsv = (filePath) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const batchId = `batch_${Date.now()}`;
+      let batch = [];
+      let totalCount = 0;
+      let skipped = 0;
+      let headersChecked = false;
+      const BATCH_SIZE = 1000;
 
-    fs.createReadStream(filePath)
-      .pipe(csv())
-      .on("headers", (headers) => {
+      // Clear the collection before streaming new data
+      await DatasetRecord.deleteMany({});
+
+      const stream = fs.createReadStream(filePath).pipe(csv());
+
+      stream.on("headers", (headers) => {
         headersChecked = true;
         const missing = REQUIRED_COLUMNS.filter((column) => !headers.includes(column));
         if (missing.length) {
+          stream.destroy();
           reject(new Error(`Missing required columns: ${missing.join(", ")}`));
         }
-      })
-      .on("data", (data) => rows.push(data))
-      .on("error", reject)
-      .on("end", () => {
-        if (!headersChecked) {
-          reject(new Error("CSV file does not contain headers."));
-          return;
-        }
-        resolve(rows);
       });
-  });
 
-export const saveDatasetBatch = async (rawRows) => {
-  const batchId = `batch_${Date.now()}`;
-  const rows = [];
-  let skipped = 0;
+      stream.on("data", async (data) => {
+        try {
+          const normalized = normalizeDatasetRow(data, batchId);
+          batch.push(normalized);
+        } catch (error) {
+          skipped += 1;
+        }
 
-  rawRows.forEach((row) => {
-    try {
-      rows.push(normalizeDatasetRow(row, batchId));
-    } catch (error) {
-      skipped += 1;
+        if (batch.length >= BATCH_SIZE) {
+          // Pause the stream while we wait for insert
+          stream.pause();
+          const currentBatch = [...batch];
+          batch = [];
+
+          try {
+            await DatasetRecord.insertMany(currentBatch, { ordered: false });
+            totalCount += currentBatch.length;
+          } catch (insertErr) {
+            console.error("Batch insert error:", insertErr.message);
+          }
+          stream.resume();
+        }
+      });
+
+      stream.on("error", (err) => {
+        reject(err);
+      });
+
+      stream.on("end", async () => {
+        if (!headersChecked) {
+          return reject(new Error("CSV file does not contain headers."));
+        }
+
+        // Insert any remaining items in the buffer
+        if (batch.length > 0) {
+          try {
+            await DatasetRecord.insertMany(batch, { ordered: false });
+            totalCount += batch.length;
+          } catch (insertErr) {
+            console.error("Final batch insert error:", insertErr.message);
+          }
+        }
+
+        if (totalCount === 0) {
+          return reject(new Error("No valid rows found after preprocessing. Check CSV date/number formats."));
+        }
+
+        // ✅ Invalidate the in-process cache after dataset update
+        _datasetCache = null;
+        _cacheTimestamp = 0;
+
+        resolve({ batchId, count: totalCount, skipped });
+      });
+    } catch (err) {
+      reject(err);
     }
   });
-
-  if (!rows.length) {
-    throw new Error("No valid rows found after preprocessing. Check CSV date/number formats.");
-  }
-
-  await DatasetRecord.deleteMany({});
-  await DatasetRecord.insertMany(rows, { ordered: false });
-
-  // ✅ Invalidate the in-process cache after dataset update
-  _datasetCache = null;
-  _cacheTimestamp = 0;
-
-  return { batchId, count: rows.length, skipped };
-};
 
 export const addDatasetRecord = async (rawRow) => {
   const latest = await DatasetRecord.findOne({}).sort({ createdAt: -1 }).lean();

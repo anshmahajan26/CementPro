@@ -6,8 +6,7 @@ import {
   getActiveDataset,
   getDatasetSnapshotStats,
   REQUIRED_COLUMNS,
-  parseCsvFile,
-  saveDatasetBatch
+  streamAndSaveCsv
 } from "../services/datasetService.js";
 import { trainModel } from "../services/mlService.js";
 
@@ -59,10 +58,8 @@ export const uploadDataset = async (req, res) => {
     // A 26MB CSV takes too long to parse and save to MongoDB synchronously, causing Render 502 Timeout.
     (async () => {
       try {
-        console.log(`[Background] Starting to process uploaded file: ${filePath}`);
-        const rows = await parseCsvFile(filePath);
-        console.log(`[Background] Parsed ${rows.length} rows. Saving to DB...`);
-        const saveInfo = await saveDatasetBatch(rows);
+        console.log(`[Background] Starting to process and stream uploaded file: ${filePath}`);
+        const saveInfo = await streamAndSaveCsv(filePath);
         console.log(`[Background] Saved to DB. Copied: ${saveInfo.count}, Skipped: ${saveInfo.skipped}.`);
 
         try {
