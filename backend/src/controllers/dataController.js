@@ -4,9 +4,10 @@ import { fileURLToPath } from "url";
 import {
   addDatasetRecord,
   getActiveDataset,
-  getDatasetSnapshotStats,
+  getGlobalDatasetStats,
   REQUIRED_COLUMNS,
-  streamAndSaveCsv
+  streamAndSaveCsv,
+  exportDatasetAsCsvStream
 } from "../services/datasetService.js";
 import { trainModel } from "../services/mlService.js";
 
@@ -69,9 +70,9 @@ export const uploadDataset = async (req, res) => {
           console.warn(`[Background Warning] Could not copy dataset to local ML_DATA_FILE: ${fsError.message}`);
         }
 
-        console.log(`[Background] Triggering model training...`);
-        const dbRows = await getActiveDataset();
-        await trainModel(dbRows);
+        console.log(`[Background] Triggering model training via streaming URL...`);
+        const downloadUrl = `${req.protocol}://${req.get("host")}/api/data/internal/export`;
+        await trainModel([], downloadUrl);
         console.log(`[Background] Processing and model training fully complete!`);
       } catch (err) {
         console.error(`[Background Error] Failed to process dataset:`, err.message);
@@ -95,8 +96,9 @@ export const addDailyRecord = async (req, res) => {
     syncMlDataFileFromRows(rows);
     const useDbRows = rows.length >= 20;
     
-    // 🔥 FIX: Fire-and-forget training to prevent timeout
-    trainModel(useDbRows ? rows : []).catch((err) => console.error("[Background Training Error]:", err.message));
+    // 🔥 FIX: Fire-and-forget training using CSV streaming
+    const downloadUrl = `${req.protocol}://${req.get("host")}/api/data/internal/export`;
+    trainModel([], downloadUrl).catch((err) => console.error("[Background Training Error]:", err.message));
 
     return res.status(201).json({
       message: useDbRows
@@ -113,12 +115,22 @@ export const addDailyRecord = async (req, res) => {
 export const getDataset = async (req, res) => {
   try {
     const rows = await getActiveDataset();
-    const stats = getDatasetSnapshotStats(rows);
+    const stats = await getGlobalDatasetStats();
 
     return res.json({
       stats,
       rows
     });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const exportCsv = async (req, res) => {
+  try {
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="dataset.csv"');
+    exportDatasetAsCsvStream(res);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

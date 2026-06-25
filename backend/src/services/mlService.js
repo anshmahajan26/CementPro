@@ -7,11 +7,12 @@ const mlApi = axios.create({
   }
 });
 
-export const trainModel = async (records) => {
+export const trainModel = async (records, downloadUrl = null) => {
   try {
-    console.log(`[ML API] Calling /train-model with ${records?.length} records`);
+    console.log(`[ML API] Calling /train-model ${downloadUrl ? 'with download URL' : `with ${records?.length} records`}`);
+    const payload = downloadUrl ? { records: records || [], download_url: downloadUrl } : { records: records || [] };
     // ✅ FIX: Use 120s timeout for training — it's CPU-intensive and can take 30-90s
-    const response = await mlApi.post("/train-model", { records }, { timeout: 120000 });
+    const response = await mlApi.post("/train-model", payload, { timeout: 120000 });
     console.log(`[ML API] /train-model success`);
     return response.data;
   } catch (error) {

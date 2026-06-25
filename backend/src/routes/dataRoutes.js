@@ -2,7 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { addDailyRecord, getDataset, uploadDataset } from "../controllers/dataController.js";
+import { addDailyRecord, getDataset, uploadDataset, exportCsv } from "../controllers/dataController.js";
 import { authorize, protect } from "../middlewares/auth.js";
 
 const router = Router();
@@ -32,5 +32,6 @@ const upload = multer({
 router.post("/upload", protect, authorize("Admin", "Manager"), upload.single("file"), uploadDataset);
 router.post("/add-record", protect, authorize("Admin", "Manager"), addDailyRecord);
 router.get("/", protect, getDataset);
+router.get("/internal/export", exportCsv);
 
 export default router;

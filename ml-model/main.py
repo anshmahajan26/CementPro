@@ -79,6 +79,7 @@ MAX_TRAIN_ROWS = 5000
 
 class TrainRequest(BaseModel):
     records: List[Dict[str, Any]] = Field(default_factory=list)
+    download_url: Optional[str] = None
 
 
 class PredictRequest(BaseModel):
@@ -410,7 +411,18 @@ def _train_lstm(
     return model, pred, scaler_x, scaler_y
 
 
-def train_pipeline(records: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
+def train_pipeline(records: Optional[List[Dict[str, Any]]] = None, download_url: Optional[str] = None) -> Dict[str, Any]:
+    if download_url:
+        import urllib.request
+        try:
+            print(f"[ML API] Downloading dataset from {download_url}")
+            DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
+            urllib.request.urlretrieve(download_url, str(DATA_FILE))
+            print(f"[ML API] Download complete: {DATA_FILE}")
+            records = None
+        except Exception as e:
+            print(f"[ML API Error] Failed to download dataset from {download_url}: {e}")
+
     raw_df = _read_source_df(records)
     model_df = _add_time_features(raw_df)
 
@@ -750,7 +762,7 @@ def health() -> Dict[str, Any]:
 @app.post("/train-model")
 def train_model(payload: TrainRequest) -> Dict[str, Any]:
     try:
-        result = train_pipeline(payload.records or None)
+        result = train_pipeline(payload.records or None, payload.download_url)
         return result
     except Exception as ex:
         raise HTTPException(status_code=400, detail=str(ex)) from ex

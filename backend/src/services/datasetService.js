@@ -233,26 +233,69 @@ export const getActiveDataset = async () => {
   if (_datasetCache && now - _cacheTimestamp < CACHE_TTL_MS) {
     return _datasetCache;
   }
-  const rows = await DatasetRecord.find({}).sort({ date: 1 }).lean();
+  // ✅ FIX: Limit to 1000 records to prevent OOM server crashes, reverse for chronological order
+  const latestRows = await DatasetRecord.find({}).sort({ date: -1 }).limit(1000).lean();
+  const rows = latestRows.reverse();
+  
   _datasetCache = rows;
   _cacheTimestamp = now;
   return rows;
 };
 
-export const getDatasetSnapshotStats = (rows) => {
-  if (!rows.length) {
+export const getGlobalDatasetStats = async () => {
+  const agg = await DatasetRecord.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalRows: { $sum: 1 },
+        startDate: { $min: "$date" },
+        endDate: { $max: "$date" },
+        avgDemand: { $avg: "$daily_rmc_volume_m3" },
+        avgTransportTime: { $avg: "$transport_time_min" },
+        avgCementKgM3: { $avg: "$cement_kg_m3" }
+      }
+    }
+  ]);
+
+  if (!agg || agg.length === 0) {
     return null;
   }
 
-  const latest = rows[rows.length - 1];
-  const avg = (key) => rows.reduce((sum, row) => sum + row[key], 0) / rows.length;
+  const result = agg[0];
+  delete result._id;
+  return result;
+};
 
-  return {
-    startDate: rows[0].date,
-    endDate: latest.date,
-    totalRows: rows.length,
-    avgDemand: avg("daily_rmc_volume_m3"),
-    avgTransportTime: avg("transport_time_min"),
-    avgCementKgM3: avg("cement_kg_m3")
+export const exportDatasetAsCsvStream = (res) => {
+  const header = REQUIRED_COLUMNS.join(",");
+  res.write(`${header}\n`);
+
+  const csvEscape = (value) => {
+    const stringValue = value instanceof Date ? value.toISOString().slice(0, 10) : String(value ?? "");
+    if (stringValue.includes(",") || stringValue.includes("\"") || stringValue.includes("\n")) {
+      return `"${stringValue.replace(/\"/g, "\"\"")}"`;
+    }
+    return stringValue;
   };
+
+  const cursor = DatasetRecord.find({}).sort({ date: 1 }).cursor();
+
+  cursor.on('data', (row) => {
+    const csvRow = REQUIRED_COLUMNS.map((col) => {
+      if (col === "date") {
+        return csvEscape(new Date(row.date));
+      }
+      return csvEscape(row[col]);
+    }).join(",");
+    res.write(`${csvRow}\n`);
+  });
+
+  cursor.on('end', () => {
+    res.end();
+  });
+
+  cursor.on('error', (err) => {
+    console.error("Cursor error streaming CSV:", err);
+    res.status(500).end();
+  });
 };
