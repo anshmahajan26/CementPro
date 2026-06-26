@@ -23,12 +23,33 @@ const MapController = ({ center }) => {
 
 const LocationMarker = ({ inputFeatures, setInputFeatures }) => {
   useMapEvents({
-    click(e) {
+    async click(e) {
+      const { lat, lng } = e.latlng;
+      // Optimistically set coordinates immediately
       setInputFeatures((prev) => ({
         ...prev,
-        latitude: e.latlng.lat,
-        longitude: e.latlng.lng
+        latitude: lat,
+        longitude: lng,
+        locationName: "Locating…"
       }));
+      // Reverse geocode to get a human-readable name
+      try {
+        const resp = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1`
+        );
+        const data = await resp.json();
+        const name =
+          data?.address?.city ||
+          data?.address?.town ||
+          data?.address?.village ||
+          data?.address?.county ||
+          data?.address?.state ||
+          data?.display_name?.split(",")[0] ||
+          `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        setInputFeatures((prev) => ({ ...prev, locationName: name }));
+      } catch {
+        setInputFeatures((prev) => ({ ...prev, locationName: `${lat.toFixed(4)}, ${lng.toFixed(4)}` }));
+      }
     }
   });
 
@@ -94,14 +115,21 @@ const MapLocationPicker = ({ inputFeatures, setInputFeatures, defaultCenter }) =
   const handleSelectSuggestion = (geo) => {
     const numLat = parseFloat(geo.lat);
     const numLng = parseFloat(geo.lon);
-    
-    setSearchQuery(geo.display_name.split(",")[0]); // Simplify the input name
+    const name =
+      geo.address?.city ||
+      geo.address?.town ||
+      geo.address?.village ||
+      geo.address?.county ||
+      geo.display_name.split(",")[0];
+
+    setSearchQuery(name);
     setShowSuggestions(false);
     setMapCenter({ lat: numLat, lng: numLng });
     setInputFeatures((prev) => ({
       ...prev,
       latitude: numLat,
-      longitude: numLng
+      longitude: numLng,
+      locationName: name
     }));
   };
 
@@ -111,19 +139,25 @@ const MapLocationPicker = ({ inputFeatures, setInputFeatures, defaultCenter }) =
     setShowSuggestions(false);
     setErrorMsg("");
     try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`);
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&addressdetails=1`);
       const data = await response.json();
       if (data && data.length > 0) {
-        const { lat, lon } = data[0];
-        const numLat = parseFloat(lat);
-        const numLng = parseFloat(lon);
-        
+        const geo = data[0];
+        const numLat = parseFloat(geo.lat);
+        const numLng = parseFloat(geo.lon);
+        const name =
+          geo.address?.city ||
+          geo.address?.town ||
+          geo.address?.village ||
+          geo.address?.county ||
+          geo.display_name.split(",")[0];
+
         setMapCenter({ lat: numLat, lng: numLng });
-        // Automatically drop pin at the top search result
         setInputFeatures((prev) => ({
           ...prev,
           latitude: numLat,
-          longitude: numLng
+          longitude: numLng,
+          locationName: name
         }));
       } else {
         setErrorMsg("Location not found");
@@ -141,21 +175,39 @@ const MapLocationPicker = ({ inputFeatures, setInputFeatures, defaultCenter }) =
       setErrorMsg("Geolocation is not supported by your browser");
       return;
     }
-    
+
     setIsSearching(true);
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const { latitude, longitude } = position.coords;
         setMapCenter({ lat: latitude, lng: longitude });
-        // Automatically drop pin at current location
         setInputFeatures((prev) => ({
           ...prev,
           latitude,
-          longitude
+          longitude,
+          locationName: "Locating…"
         }));
+        // Reverse geocode current location
+        try {
+          const resp = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=14&addressdetails=1`
+          );
+          const data = await resp.json();
+          const name =
+            data?.address?.city ||
+            data?.address?.town ||
+            data?.address?.village ||
+            data?.address?.county ||
+            data?.address?.state ||
+            data?.display_name?.split(",")[0] ||
+            `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+          setInputFeatures((prev) => ({ ...prev, locationName: name }));
+        } catch {
+          setInputFeatures((prev) => ({ ...prev, locationName: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}` }));
+        }
         setIsSearching(false);
       },
-      (error) => {
+      () => {
         setErrorMsg("Unable to retrieve your location (check browser permissions)");
         setIsSearching(false);
       }

@@ -88,7 +88,6 @@ const RegisterPage = () => {
                     value={selectedRole}
                     onChange={(e) => setSelectedRole(e.target.value)}
                   >
-                    <option>Admin</option>
                     <option>Manager</option>
                     <option>Operator</option>
                   </select>
@@ -122,7 +121,6 @@ const RegisterPage = () => {
                     value={form.role}
                     onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}
                   >
-                    <option>Admin</option>
                     <option>Manager</option>
                     <option>Operator</option>
                   </select>

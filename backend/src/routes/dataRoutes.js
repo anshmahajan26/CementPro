@@ -29,8 +29,8 @@ const upload = multer({
   }
 });
 
-router.post("/upload", protect, authorize("Admin", "Manager"), upload.single("file"), uploadDataset);
-router.post("/add-record", protect, authorize("Admin", "Manager"), addDailyRecord);
+router.post("/upload", protect, authorize("Manager"), upload.single("file"), uploadDataset);
+router.post("/add-record", protect, authorize("Manager"), addDailyRecord);
 router.get("/", protect, getDataset);
 router.get("/internal/export", exportCsv);
 

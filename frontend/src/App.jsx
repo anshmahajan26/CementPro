@@ -2,10 +2,8 @@ import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import AppShell from "@/components/layout/AppShell";
+import { useAuth } from "@/context/AuthContext";
 
-// ✅ Lazy-load all page-level components so each route's JS is only fetched
-// when the user first navigates to it. This dramatically reduces Time-to-Interactive
-// on the initial load (only the Login page code is needed at app start).
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/RegisterPage"));
 const ForgotPasswordPage = lazy(() => import("@/pages/ForgotPasswordPage"));
@@ -14,14 +12,21 @@ const ForecastPage = lazy(() => import("@/pages/ForecastPage"));
 const ProcurementPage = lazy(() => import("@/pages/ProcurementPage"));
 const CarbonPage = lazy(() => import("@/pages/CarbonPage"));
 const ReportsPage = lazy(() => import("@/pages/ReportsPage"));
-const AdminPanelPage = lazy(() => import("@/pages/AdminPanelPage"));
+const OperatorDashboard = lazy(() => import("@/pages/OperatorDashboard"));
 
-// Minimal loading fallback shown between route transitions
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center">
     <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
   </div>
 );
+
+const RootRoute = () => {
+  const { user } = useAuth();
+  if (user?.role === "Operator") {
+    return <Navigate to="/operator" replace />;
+  }
+  return <DashboardPage />;
+};
 
 const App = () => (
   <Suspense fallback={<PageLoader />}>
@@ -38,19 +43,16 @@ const App = () => (
           </ProtectedRoute>
         }
       >
-        <Route index element={<DashboardPage />} />
-        <Route path="forecast" element={<ForecastPage />} />
-        <Route path="procurement" element={<ProcurementPage />} />
-        <Route path="carbon" element={<CarbonPage />} />
-        <Route path="reports" element={<ReportsPage />} />
-        <Route
-          path="admin"
-          element={
-            <ProtectedRoute roles={["Admin", "Manager"]}>
-              <AdminPanelPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route index element={<RootRoute />} />
+        
+        {/* Manager Routes */}
+        <Route path="forecast" element={<ProtectedRoute roles={["Manager"]}><ForecastPage /></ProtectedRoute>} />
+        <Route path="procurement" element={<ProtectedRoute roles={["Manager"]}><ProcurementPage /></ProtectedRoute>} />
+        <Route path="carbon" element={<ProtectedRoute roles={["Manager"]}><CarbonPage /></ProtectedRoute>} />
+        <Route path="reports" element={<ProtectedRoute roles={["Manager"]}><ReportsPage /></ProtectedRoute>} />
+
+        {/* Operator Route */}
+        <Route path="operator" element={<ProtectedRoute roles={["Operator"]}><OperatorDashboard /></ProtectedRoute>} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

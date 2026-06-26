@@ -3,12 +3,12 @@ import { ChartColumn, Factory, FileSpreadsheet, Leaf, ShieldCheck, Sparkles, Upl
 import { cn } from "@/lib/utils";
 
 const links = [
-  { to: "/", label: "Dashboard", icon: ChartColumn },
-  { to: "/forecast", label: "Forecast", icon: Sparkles },
-  { to: "/procurement", label: "Procurement", icon: Factory },
-  { to: "/carbon", label: "Carbon", icon: Leaf },
-  { to: "/reports", label: "Reports", icon: FileSpreadsheet },
-  { to: "/admin", label: "Admin Panel", icon: UploadCloud, roles: ["Admin", "Manager"] }
+  { to: "/", label: "Dashboard", icon: ChartColumn, roles: ["Manager"] },
+  { to: "/forecast", label: "Forecast", icon: Sparkles, roles: ["Manager"] },
+  { to: "/procurement", label: "Procurement", icon: Factory, roles: ["Manager"] },
+  { to: "/carbon", label: "Carbon", icon: Leaf, roles: ["Manager"] },
+  { to: "/reports", label: "Reports", icon: FileSpreadsheet, roles: ["Manager"] },
+  { to: "/operator", label: "Active Orders", icon: UploadCloud, roles: ["Operator"] }
 ];
 
 const Sidebar = ({ role }) => (

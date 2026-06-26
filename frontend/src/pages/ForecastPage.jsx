@@ -197,22 +197,21 @@ const ForecastPage = () => {
 
             {inputFeatures.latitude && inputFeatures.longitude ? (
               <div className="mb-5 flex flex-wrap items-center gap-2 text-xs">
-                <Badge variant="outline" className="text-muted-foreground">
-                  Lat: {Number(inputFeatures.latitude).toFixed(4)}
-                </Badge>
-                <Badge variant="outline" className="text-muted-foreground">
-                  Lng: {Number(inputFeatures.longitude).toFixed(4)}
+                <Badge variant="outline" className="flex items-center gap-1.5 text-xs font-medium text-foreground px-3 py-1">
+                  <span className="text-primary">📍</span>
+                  {inputFeatures.locationName || `${Number(inputFeatures.latitude).toFixed(4)}, ${Number(inputFeatures.longitude).toFixed(4)}`}
                 </Badge>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-6 px-3 text-[10px]"
-                  onClick={() => setInputFeatures((p) => ({ ...p, latitude: "", longitude: "" }))}
+                  onClick={() => setInputFeatures((p) => ({ ...p, latitude: "", longitude: "", locationName: "" }))}
                 >
                   Clear Location
                 </Button>
               </div>
             ) : null}
+
 
             <p className="mb-2 text-sm font-semibold">Custom Feature Overrides (optional)</p>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

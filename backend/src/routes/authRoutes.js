@@ -8,7 +8,7 @@ router.post("/register", register);
 router.post("/login", login);
 router.get("/me", protect, me);
 router.post("/change-password", protect, changePassword);
-router.post("/reset-password", protect, authorize("Admin", "Manager"), resetPassword);
+router.post("/reset-password", protect, authorize("Manager"), resetPassword);
 
 router.post("/google-login", googleLogin);
 router.post("/google-register", googleRegister);

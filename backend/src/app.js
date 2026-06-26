@@ -8,6 +8,7 @@ import procurementRoutes from "./routes/procurementRoutes.js";
 import carbonRoutes from "./routes/carbonRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
@@ -55,6 +56,7 @@ app.use("/api/procurement", procurementRoutes);
 app.use("/api/carbon", carbonRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/orders", orderRoutes);
 
 /* ---------- React Frontend ---------- */
 
