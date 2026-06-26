@@ -114,6 +114,9 @@ const ForecastPage = () => {
         localStorage.setItem("fc_inputs", JSON.stringify(overrides));
         localStorage.setItem("fc_days", JSON.stringify(targetDays ?? days));
         localStorage.setItem("fc_weather", JSON.stringify(useWeather));
+        if (overrides.locationName) {
+          localStorage.setItem("fc_location_name", overrides.locationName);
+        }
       } catch (e) {
         console.warn("Could not cache to localStorage");
       }
@@ -121,8 +124,9 @@ const ForecastPage = () => {
       // Auto-save trace history behind the scenes
       if (overrides.latitude && overrides.longitude) {
          // Fire-and-forget
+         const locName = overrides.locationName || `Prediction Trace (${formatNumber(overrides.latitude, 3)}, ${formatNumber(overrides.longitude, 3)})`;
          api.post("/forecast/saved", {
-           name: `Prediction Trace (${formatNumber(overrides.latitude, 3)}, ${formatNumber(overrides.longitude, 3)})`,
+           name: locName,
            latitude: overrides.latitude,
            longitude: overrides.longitude,
            forecast_days: Number(targetDays ?? days),

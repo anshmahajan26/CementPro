@@ -73,9 +73,9 @@ const SavedForecastsManager = ({
                 <div key={item._id} className="group relative flex items-center justify-between gap-4 p-3 rounded-lg border border-border bg-card hover:border-primary transition-colors">
                   <div className="flex-1">
                     <h4 className="font-semibold text-primary">{item.name}</h4>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Lat: {formatNumber(item.latitude, 4)} | Lon: {formatNumber(item.longitude, 4)}
-                    </p>
+                    {item.features?.locationName && item.features.locationName !== item.name && (
+                      <p className="text-xs text-muted-foreground mt-1 font-medium">{item.features.locationName}</p>
+                    )}
                     <p className="text-xs text-muted-foreground opacity-60 mt-0.5">
                       Saved On: {new Date(item.createdAt).toLocaleString()}
                     </p>
