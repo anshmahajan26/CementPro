@@ -15,6 +15,7 @@ const CarbonPage = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [isSavedManagerOpen, setIsSavedManagerOpen] = useState(false);
+  const [isCarbonManagerOpen, setIsCarbonManagerOpen] = useState(false);
   const [isForecastManagerOpen, setIsForecastManagerOpen] = useState(false);
   const [activeLocation, setActiveLocation] = useState(null);
 

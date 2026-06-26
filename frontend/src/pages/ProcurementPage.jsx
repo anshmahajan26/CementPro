@@ -14,6 +14,7 @@ const ProcurementPage = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [isSavedManagerOpen, setIsSavedManagerOpen] = useState(false);
+  const [isProcurementManagerOpen, setIsProcurementManagerOpen] = useState(false);
   const [isForecastManagerOpen, setIsForecastManagerOpen] = useState(false);
   const [activeLocation, setActiveLocation] = useState(null);
 
