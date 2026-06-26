@@ -18,6 +18,7 @@ import api from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatNumber } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import DashboardChatbot from "@/components/ui/DashboardChatbot";
 
 // Loading skeleton for KPI cards
@@ -44,6 +45,7 @@ const DashboardPage = () => {
   // Emergency Orders State
   const [emergencyOrders, setEmergencyOrders] = useState([]);
   const [loadingEmergencies, setLoadingEmergencies] = useState(false);
+  const [resolvingOrderId, setResolvingOrderId] = useState(null);
 
   // Load available forecast locations
   const loadLocations = useCallback(async () => {
@@ -100,10 +102,13 @@ const DashboardPage = () => {
 
   const handleResolveEmergency = async (orderId) => {
     try {
+      setResolvingOrderId(orderId);
       await api.put(`/orders/${orderId}/status`, { status: "RESOLVED" });
       loadEmergencies(); // Refresh list
     } catch (err) {
       console.error("Failed to resolve emergency:", err);
+    } finally {
+      setResolvingOrderId(null);
     }
   };
 
@@ -216,9 +221,10 @@ const DashboardPage = () => {
                 </div>
                 <button 
                   onClick={() => handleResolveEmergency(order._id)}
-                  className="bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-1.5 rounded text-sm transition"
+                  disabled={resolvingOrderId === order._id}
+                  className="bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-1.5 rounded text-sm transition flex items-center justify-center gap-2"
                 >
-                  Mark as Resolved
+                  {resolvingOrderId === order._id ? <><Loader2 className="h-4 w-4 animate-spin" /> Resolving...</> : "Mark as Resolved"}
                 </button>
               </div>
             ))}

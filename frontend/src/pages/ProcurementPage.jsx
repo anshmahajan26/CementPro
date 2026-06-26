@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatNumber } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import SavedForecastsManager from "@/components/ui/SavedForecastsManager";
 import SavedProcurementsManager from "@/components/ui/SavedProcurementsManager";
 const ProcurementPage = () => {
@@ -17,6 +18,7 @@ const ProcurementPage = () => {
   const [isProcurementManagerOpen, setIsProcurementManagerOpen] = useState(false);
   const [isForecastManagerOpen, setIsForecastManagerOpen] = useState(false);
   const [activeLocation, setActiveLocation] = useState(null);
+  const [isSimulating, setIsSimulating] = useState(false);
   const [isDispatching, setIsDispatching] = useState(false);
 
   const loadData = async (targetDays = days, targetInv = inventory, customInputs = null, customWeather = null) => {
@@ -42,6 +44,8 @@ const ProcurementPage = () => {
          setActiveLocation(null);
          return; // Enforce missing location rule
       }
+
+      setIsSimulating(true);
 
       const response = await api.post(`/procurement`, {
         days: Number(targetDays),
@@ -74,6 +78,8 @@ const ProcurementPage = () => {
 
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load procurement");
+    } finally {
+      setIsSimulating(false);
     }
   };
 
@@ -212,7 +218,16 @@ const ProcurementPage = () => {
                 <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Current Silo (t):</span>
                 <Input type="number" min={0} value={inventory} onChange={(e) => setInventory(e.target.value)} className="w-32 border-primary/50 bg-primary/5 font-semibold text-primary" />
               </div>
-              <Button className="whitespace-nowrap shrink-0" onClick={() => loadData(days, inventory)}>Simulate Burn-Down</Button>
+              <Button className="whitespace-nowrap shrink-0" onClick={() => loadData(days, inventory)} disabled={isSimulating}>
+                {isSimulating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Simulating...
+                  </>
+                ) : (
+                  "Simulate Burn-Down"
+                )}
+              </Button>
             </div>
             <div className="flex flex-wrap items-center gap-2 mt-4 sm:mt-0">
               <Button variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 whitespace-nowrap shrink-0" onClick={() => setIsSavedManagerOpen(true)}>
@@ -269,7 +284,14 @@ const ProcurementPage = () => {
               disabled={isDispatching}
               className="bg-green-600 hover:bg-green-700 text-white shadow-md font-semibold"
             >
-              {isDispatching ? "Dispatching..." : "🚚 Dispatch Order to Operator"}
+              {isDispatching ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Dispatching...
+                </>
+              ) : (
+                "🚚 Dispatch Order to Operator"
+              )}
             </Button>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

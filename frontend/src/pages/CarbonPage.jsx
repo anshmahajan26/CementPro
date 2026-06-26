@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatNumber } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import SavedForecastsManager from "@/components/ui/SavedForecastsManager";
 import SavedCarbonsManager from "@/components/ui/SavedCarbonsManager";
 
@@ -18,6 +19,7 @@ const CarbonPage = () => {
   const [isCarbonManagerOpen, setIsCarbonManagerOpen] = useState(false);
   const [isForecastManagerOpen, setIsForecastManagerOpen] = useState(false);
   const [activeLocation, setActiveLocation] = useState(null);
+  const [isEstimating, setIsEstimating] = useState(false);
 
   const loadData = async (targetDays = days, targetBlend = blendFactor, customInputs = null, customWeather = null) => {
     try {
@@ -42,6 +44,8 @@ const CarbonPage = () => {
         setActiveLocation(null);
         return; // Enforce missing location rule
       }
+
+      setIsEstimating(true);
 
       const response = await api.post(`/carbon`, {
         days: Number(targetDays),
@@ -74,6 +78,8 @@ const CarbonPage = () => {
 
     } catch (err) {
       setError(err.response?.data?.message || "Failed to calculate sustainability footprint");
+    } finally {
+      setIsEstimating(false);
     }
   };
 
@@ -183,7 +189,16 @@ const CarbonPage = () => {
                   <option value="0.55">LC3 (Limestone)</option>
                 </select>
               </div>
-              <Button className="whitespace-nowrap shrink-0" onClick={() => loadData(days, blendFactor)}>Estimate Emissions</Button>
+              <Button className="whitespace-nowrap shrink-0" onClick={() => loadData(days, blendFactor)} disabled={isEstimating}>
+                {isEstimating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Estimating...
+                  </>
+                ) : (
+                  "Estimate Emissions"
+                )}
+              </Button>
             </div>
             <div className="flex flex-wrap items-center gap-2 mt-4 sm:mt-0">
               <Button variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50 whitespace-nowrap shrink-0" onClick={() => setIsForecastManagerOpen(true)}>

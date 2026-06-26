@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Edit2, Plus, Trash2, Upload, Database, RefreshCw, Key, Shield, Loader2 } from "lucide-react";
 import api from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,8 @@ const DataManagementPage = () => {
   const [resetForm, setResetForm] = useState({ email: "", newPassword: "" });
   const [passwordMessage, setPasswordMessage] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [submittingRecord, setSubmittingRecord] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   const loadDataset = async () => {
     try {
@@ -125,6 +128,7 @@ const DataManagementPage = () => {
 
   const handleAddOrUpdateRecord = async () => {
     try {
+      setSubmittingRecord(true);
       setError("");
       setMessage("");
 
@@ -134,6 +138,7 @@ const DataManagementPage = () => {
 
       if (missing.length) {
         setError(`Please fill all record fields. Missing: ${missing.join(", ")}`);
+        setSubmittingRecord(false);
         return;
       }
 
@@ -159,6 +164,8 @@ const DataManagementPage = () => {
       setRecordForm({ ...EMPTY_RECORD });
     } catch (err) {
       setError(err.response?.data?.message || "Failed to save record");
+    } finally {
+      setSubmittingRecord(false);
     }
   };
 
@@ -200,6 +207,7 @@ const DataManagementPage = () => {
     }
 
     try {
+      setDeletingId(id);
       setError("");
       setMessage("");
       await api.delete(`/data/record/${id}`);
@@ -212,6 +220,8 @@ const DataManagementPage = () => {
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete record");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -282,7 +292,17 @@ const DataManagementPage = () => {
           )}
 
           <Button onClick={handleUpload} disabled={isUploading || !file}>
-            {isUploading ? `Uploading... ${uploadProgress}%` : "Upload CSV and Train Models"}
+            {isUploading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Uploading... {uploadProgress}%
+              </>
+            ) : (
+              <>
+                <Upload className="mr-2 h-4 w-4" />
+                Upload CSV and Train Models
+              </>
+            )}
           </Button>
           
           {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
@@ -310,8 +330,15 @@ const DataManagementPage = () => {
             ))}
           </div>
           <div className="flex gap-2">
-            <Button onClick={handleAddOrUpdateRecord}>
-              {editingId ? "Update Record + Retrain" : "Add Record + Retrain"}
+            <Button onClick={handleAddOrUpdateRecord} disabled={submittingRecord}>
+              {submittingRecord ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                editingId ? "Update Record + Retrain" : "Add Record + Retrain"
+              )}
             </Button>
             {editingId && (
               <Button variant="outline" onClick={handleCancelEdit}>
@@ -375,13 +402,15 @@ const DataManagementPage = () => {
                         >
                           ✏️ Edit
                         </button>
-                        <button
-                          onClick={() => handleDeleteRow(row._id)}
-                          className="rounded px-2 py-1 text-xs font-semibold text-red-500 hover:bg-red-500/10 transition"
-                          title="Delete this record"
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleDeleteRow(row._id)} 
+                          disabled={deletingId === row._id}
+                          className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
                         >
-                          🗑️ Delete
-                        </button>
+                          {deletingId === row._id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                        </Button>
                       </div>
                     </td>
                   </tr>

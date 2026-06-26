@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
-import { CheckCircle, Truck, Package, AlertTriangle, Activity } from "lucide-react";
+import { CheckCircle, Truck, Package, AlertTriangle, Activity, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { formatNumber } from "@/lib/utils";
 
 const OperatorDashboard = () => {
@@ -11,6 +12,7 @@ const OperatorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [forecastLoading, setForecastLoading] = useState(true);
   const [basicForecast, setBasicForecast] = useState(null);
+  const [processingOrderId, setProcessingOrderId] = useState(null);
 
   const fetchOrders = async () => {
     try {
@@ -41,7 +43,8 @@ const OperatorDashboard = () => {
 
   const updateStatus = async (orderId, newStatus, emergencyNote = "") => {
     try {
-      await api.put(`/orders/${orderId}/status`, { 
+      setProcessingOrderId(orderId);
+      await api.put(`/orders/${orderId}/status`, {
         status: newStatus,
         emergencyAlert: emergencyNote
       });
@@ -49,6 +52,8 @@ const OperatorDashboard = () => {
     } catch (error) {
       console.error("Failed to update status:", error);
       alert("Error updating order status.");
+    } finally {
+      setProcessingOrderId(null);
     }
   };
 
@@ -75,7 +80,7 @@ const OperatorDashboard = () => {
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
           <h2 className="text-xl font-semibold flex items-center gap-2">Active Deliveries</h2>
-          
+
           {orders.length === 0 ? (
             <div className="rounded-xl border border-border bg-card p-8 text-center text-muted-foreground">
               No active orders assigned.
@@ -87,20 +92,19 @@ const OperatorDashboard = () => {
                   <div className="mb-4 flex items-start justify-between">
                     <div>
                       <h3 className="font-semibold text-foreground flex items-center gap-1">
-                        <Package size={16}/> {order.cementType}
+                        <Package size={16} /> {order.cementType}
                       </h3>
                       <p className="text-sm text-muted-foreground">Qty: {order.quantity} tons</p>
                     </div>
-                    <span className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                      order.status === "PENDING" ? "bg-yellow-500/20 text-yellow-500" :
-                      order.status === "IN_TRANSIT" ? "bg-blue-500/20 text-blue-500" :
-                      order.status === "EMERGENCY" ? "bg-red-500/20 text-red-500" :
-                      "bg-green-500/20 text-green-500"
-                    }`}>
+                    <span className={`rounded-full px-2 py-1 text-xs font-semibold ${order.status === "PENDING" ? "bg-yellow-500/20 text-yellow-500" :
+                        order.status === "IN_TRANSIT" ? "bg-blue-500/20 text-blue-500" :
+                          order.status === "EMERGENCY" ? "bg-red-500/20 text-red-500" :
+                            "bg-green-500/20 text-green-500"
+                      }`}>
                       {order.status}
                     </span>
                   </div>
-                  
+
                   <div className="mb-4 text-sm text-muted-foreground">
                     <p><strong>Destination:</strong> {order.destination}</p>
                     <p><strong>Manager:</strong> {order.managerId?.name || "N/A"}</p>
@@ -111,28 +115,31 @@ const OperatorDashboard = () => {
 
                   <div className="mt-auto flex flex-col gap-2">
                     {order.status === "PENDING" && (
-                      <button
+                      <Button
                         onClick={() => updateStatus(order._id, "IN_TRANSIT")}
-                        className="w-full rounded bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        disabled={processingOrderId === order._id}
                       >
-                        Start Transit
-                      </button>
+                        {processingOrderId === order._id ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Starting...</> : "Start Transit"}
+                      </Button>
                     )}
                     {(order.status === "IN_TRANSIT" || order.status === "EMERGENCY") && (
                       <>
-                        <button
+                        <Button
                           onClick={() => updateStatus(order._id, "DELIVERED")}
-                          className="w-full flex items-center justify-center gap-2 rounded bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700 transition"
+                          className="w-full bg-green-600 hover:bg-green-700 text-white"
+                          disabled={processingOrderId === order._id}
                         >
-                          <CheckCircle size={16} /> Mark Delivered
-                        </button>
+                          {processingOrderId === order._id ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Marking...</> : <><CheckCircle size={16} className="mr-2" /> Mark Delivered</>}
+                        </Button>
                         {order.status !== "EMERGENCY" && (
-                          <button
+                          <Button
+                            variant="outline"
                             onClick={() => handleEmergency(order._id)}
                             className="w-full flex items-center justify-center gap-2 rounded bg-red-600/10 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-600 hover:text-white transition"
                           >
                             <AlertTriangle size={16} /> Report Emergency
-                          </button>
+                          </Button>
                         )}
                       </>
                     )}

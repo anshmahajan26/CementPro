@@ -19,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { formatNumber } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 // ✅ FIX: Static import (not React.lazy) — react-leaflet's MapContext crashes
 // when Suspense unmounts/remounts the tree. Leaflet is still vendor-split by Vite.
 import MapLocationPicker from "@/components/ui/MapLocationPicker";
@@ -232,9 +233,15 @@ const ForecastPage = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {/* ✅ FIX: Button is disabled and shows "Predicting…" while request is in-flight */}
             <Button onClick={() => fetchForecast(days)} disabled={loading}>
-              {loading ? "Predicting…" : "Predict Demand"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                "Generate Forecast"
+              )}
             </Button>
             <Button variant="outline" onClick={resetFeatures} disabled={loading}>
               Reset Overrides
