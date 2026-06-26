@@ -30,7 +30,7 @@ export const predictDemand = async (days = 7, featureOverrides = {}) => {
   } catch (error) {
     console.error(`[ML API Error] /predict-demand failed:`, error.response?.data || error.message);
     console.log(`[ML API Fallback] Generating safe dummy values for ${days} days to prevent crash`);
-    
+
     // Fallback logic for ML failure
     const predictions = Array.from({ length: days }).map((_, i) => {
       const date = new Date();

@@ -7,7 +7,9 @@ import {
   getGlobalDatasetStats,
   REQUIRED_COLUMNS,
   streamAndSaveCsv,
-  exportDatasetAsCsvStream
+  exportDatasetAsCsvStream,
+  updateDatasetRecord,
+  deleteDatasetRecord
 } from "../services/datasetService.js";
 import { trainModel } from "../services/mlService.js";
 
@@ -133,5 +135,49 @@ export const exportCsv = async (req, res) => {
     exportDatasetAsCsvStream(res);
   } catch (error) {
     return res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateRecord = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedRecord = await updateDatasetRecord(id, req.body);
+    const rows = await getActiveDataset();
+
+    syncMlDataFileFromRows(rows);
+    
+    // Background ML training
+    const downloadUrl = `${req.protocol}://${req.get("host")}/api/data/internal/export`;
+    trainModel([], downloadUrl).catch((err) => console.error("[Background Training Error]:", err.message));
+
+    return res.status(200).json({
+      message: "Record updated. Model retraining started in background.",
+      updatedRecord,
+      totalRows: rows.length
+    });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+export const deleteRecord = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedRecord = await deleteDatasetRecord(id);
+    const rows = await getActiveDataset();
+
+    syncMlDataFileFromRows(rows);
+    
+    // Background ML training
+    const downloadUrl = `${req.protocol}://${req.get("host")}/api/data/internal/export`;
+    trainModel([], downloadUrl).catch((err) => console.error("[Background Training Error]:", err.message));
+
+    return res.status(200).json({
+      message: "Record deleted. Model retraining started in background.",
+      deletedRecord,
+      totalRows: rows.length
+    });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
   }
 };

@@ -299,3 +299,30 @@ export const exportDatasetAsCsvStream = (res) => {
     res.status(500).end();
   });
 };
+
+export const updateDatasetRecord = async (id, rawRow) => {
+  const existingRecord = await DatasetRecord.findById(id);
+  if (!existingRecord) throw new Error("Record not found");
+  
+  const batchId = existingRecord.batchId;
+  const row = normalizeDatasetRow(rawRow, batchId);
+  
+  const updated = await DatasetRecord.findByIdAndUpdate(id, row, { new: true });
+  
+  // ✅ Invalidate cache when a record is updated
+  _datasetCache = null;
+  _cacheTimestamp = 0;
+  
+  return updated.toObject();
+};
+
+export const deleteDatasetRecord = async (id) => {
+  const deleted = await DatasetRecord.findByIdAndDelete(id);
+  if (!deleted) throw new Error("Record not found");
+
+  // ✅ Invalidate cache when a record is deleted
+  _datasetCache = null;
+  _cacheTimestamp = 0;
+
+  return deleted.toObject();
+};

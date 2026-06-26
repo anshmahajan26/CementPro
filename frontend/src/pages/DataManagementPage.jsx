@@ -5,6 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatNumber } from "@/lib/utils";
 
+const EMPTY_RECORD = {
+  date: "",
+  daily_rmc_volume_m3: "",
+  project_size: "",
+  day_in_project: "",
+  latitude: "",
+  longitude: "",
+  cement_kg_m3: "",
+  aggregate_10mm_pct: "",
+  aggregate_20mm_pct: "",
+  agg_moisture_content_pct: "",
+  water_binder_ratio: "",
+  slump_mm: "",
+  batching_time_min: "",
+  transport_time_min: "",
+  truck_capacity_m3: ""
+};
+
 const DataManagementPage = () => {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
@@ -12,23 +30,8 @@ const DataManagementPage = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dataset, setDataset] = useState(null);
-  const [recordForm, setRecordForm] = useState({
-    date: "",
-    daily_rmc_volume_m3: "",
-    project_size: "",
-    day_in_project: "",
-    latitude: "",
-    longitude: "",
-    cement_kg_m3: "",
-    aggregate_10mm_pct: "",
-    aggregate_20mm_pct: "",
-    agg_moisture_content_pct: "",
-    water_binder_ratio: "",
-    slump_mm: "",
-    batching_time_min: "",
-    transport_time_min: "",
-    truck_capacity_m3: ""
-  });
+  const [recordForm, setRecordForm] = useState({ ...EMPTY_RECORD });
+  const [editingId, setEditingId] = useState(null); // null = add mode, string = edit mode
   const [changeForm, setChangeForm] = useState({ currentPassword: "", newPassword: "" });
   const [resetForm, setResetForm] = useState({ email: "", newPassword: "" });
   const [passwordMessage, setPasswordMessage] = useState("");
@@ -64,7 +67,6 @@ const DataManagementPage = () => {
 
       const response = await api.post("/data/upload", formData, {
         onUploadProgress: (progressEvent) => {
-          // Cap at 90% while waiting for server to process the CSV
           const percentCompleted = Math.round((progressEvent.loaded * 90) / progressEvent.total);
           setUploadProgress(percentCompleted);
         }
@@ -121,7 +123,7 @@ const DataManagementPage = () => {
     }
   };
 
-  const handleAddRecord = async () => {
+  const handleAddOrUpdateRecord = async () => {
     try {
       setError("");
       setMessage("");
@@ -142,28 +144,74 @@ const DataManagementPage = () => {
         }
       });
 
-      await api.post("/data/add-record", payload);
-      setMessage("Daily record added. Model retrained using latest dataset.");
+      if (editingId) {
+        // UPDATE existing record
+        await api.put(`/data/record/${editingId}`, payload);
+        setMessage("Record updated successfully. Model retraining started.");
+        setEditingId(null);
+      } else {
+        // ADD new record
+        await api.post("/data/add-record", payload);
+        setMessage("Daily record added. Model retrained using latest dataset.");
+      }
+
       await loadDataset();
-      setRecordForm({
-        date: "",
-        daily_rmc_volume_m3: "",
-        project_size: "",
-        day_in_project: "",
-        latitude: "",
-        longitude: "",
-        cement_kg_m3: "",
-        aggregate_10mm_pct: "",
-        aggregate_20mm_pct: "",
-        agg_moisture_content_pct: "",
-        water_binder_ratio: "",
-        slump_mm: "",
-        batching_time_min: "",
-        transport_time_min: "",
-        truck_capacity_m3: ""
-      });
+      setRecordForm({ ...EMPTY_RECORD });
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to add daily record");
+      setError(err.response?.data?.message || "Failed to save record");
+    }
+  };
+
+  const handleEditRow = (row) => {
+    setEditingId(row._id);
+    setRecordForm({
+      date: row.date ? new Date(row.date).toISOString().slice(0, 10) : "",
+      daily_rmc_volume_m3: String(row.daily_rmc_volume_m3 ?? ""),
+      project_size: String(row.project_size ?? ""),
+      day_in_project: String(row.day_in_project ?? ""),
+      latitude: String(row.latitude ?? ""),
+      longitude: String(row.longitude ?? ""),
+      cement_kg_m3: String(row.cement_kg_m3 ?? ""),
+      aggregate_10mm_pct: String(row.aggregate_10mm_pct ?? ""),
+      aggregate_20mm_pct: String(row.aggregate_20mm_pct ?? ""),
+      agg_moisture_content_pct: String(row.agg_moisture_content_pct ?? ""),
+      water_binder_ratio: String(row.water_binder_ratio ?? ""),
+      slump_mm: String(row.slump_mm ?? ""),
+      batching_time_min: String(row.batching_time_min ?? ""),
+      transport_time_min: String(row.transport_time_min ?? ""),
+      truck_capacity_m3: String(row.truck_capacity_m3 ?? "")
+    });
+    setMessage("");
+    setError("");
+    // Scroll to the form
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setRecordForm({ ...EMPTY_RECORD });
+    setMessage("");
+    setError("");
+  };
+
+  const handleDeleteRow = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this record? This will also trigger model retraining.")) {
+      return;
+    }
+
+    try {
+      setError("");
+      setMessage("");
+      await api.delete(`/data/record/${id}`);
+      setMessage("Record deleted. Model retraining started in background.");
+      await loadDataset();
+
+      // If we were editing this row, cancel the edit
+      if (editingId === id) {
+        handleCancelEdit();
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete record");
     }
   };
 
@@ -219,7 +267,7 @@ const DataManagementPage = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Dataset Upload & Training</CardTitle>
+          <CardTitle>Dataset Upload &amp; Training</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <input type="file" accept=".csv" onChange={(e) => setFile(e.target.files?.[0] || null)} className="w-full text-sm" disabled={isUploading} />
@@ -242,9 +290,11 @@ const DataManagementPage = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className={editingId ? "ring-2 ring-primary" : ""}>
         <CardHeader>
-          <CardTitle>Add New Daily Record (Auto Retrain)</CardTitle>
+          <CardTitle>
+            {editingId ? "✏️ Editing Record" : "Add New Daily Record (Auto Retrain)"}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -259,7 +309,16 @@ const DataManagementPage = () => {
               </div>
             ))}
           </div>
-          <Button onClick={handleAddRecord}>Add Record + Retrain</Button>
+          <div className="flex gap-2">
+            <Button onClick={handleAddOrUpdateRecord}>
+              {editingId ? "Update Record + Retrain" : "Add Record + Retrain"}
+            </Button>
+            {editingId && (
+              <Button variant="outline" onClick={handleCancelEdit}>
+                Cancel Edit
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 
@@ -293,16 +352,38 @@ const DataManagementPage = () => {
                   <th className="py-2">Project Size</th>
                   <th className="py-2">Cement kg/m3</th>
                   <th className="py-2">Transport min</th>
+                  <th className="py-2 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {dataset.rows.slice(-10).map((row) => (
-                  <tr key={`${row._id}-${row.date}`} className="border-b border-border/70">
+                  <tr
+                    key={`${row._id}-${row.date}`}
+                    className={`border-b border-border/70 ${editingId === row._id ? "bg-primary/10" : ""}`}
+                  >
                     <td className="py-2">{new Date(row.date).toLocaleDateString()}</td>
                     <td className="py-2">{formatNumber(row.daily_rmc_volume_m3)}</td>
                     <td className="py-2">{formatNumber(row.project_size)}</td>
                     <td className="py-2">{formatNumber(row.cement_kg_m3)}</td>
                     <td className="py-2">{formatNumber(row.transport_time_min)}</td>
+                    <td className="py-2 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => handleEditRow(row)}
+                          className="rounded px-2 py-1 text-xs font-semibold text-blue-500 hover:bg-blue-500/10 transition"
+                          title="Edit this record"
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteRow(row._id)}
+                          className="rounded px-2 py-1 text-xs font-semibold text-red-500 hover:bg-red-500/10 transition"
+                          title="Delete this record"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
