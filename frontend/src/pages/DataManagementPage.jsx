@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatNumber } from "@/lib/utils";
 
-const AdminPanelPage = () => {
+const DataManagementPage = () => {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -194,7 +194,7 @@ const AdminPanelPage = () => {
           </div>
 
           <div className="space-y-2 rounded-md border border-border p-3">
-            <p className="text-sm font-semibold">Reset User Password (Admin/Manager)</p>
+            <p className="text-sm font-semibold">Reset User Password (Manager)</p>
             <div className="grid gap-2 md:grid-cols-2">
               <Input
                 type="email"
@@ -314,4 +314,4 @@ const AdminPanelPage = () => {
   );
 };
 
-export default AdminPanelPage;
+export default DataManagementPage;

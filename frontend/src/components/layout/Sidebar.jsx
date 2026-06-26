@@ -8,6 +8,7 @@ const links = [
   { to: "/procurement", label: "Procurement", icon: Factory, roles: ["Manager"] },
   { to: "/carbon", label: "Carbon", icon: Leaf, roles: ["Manager"] },
   { to: "/reports", label: "Reports", icon: FileSpreadsheet, roles: ["Manager"] },
+  { to: "/data-management", label: "Data Management", icon: UploadCloud, roles: ["Manager"] },
   { to: "/operator", label: "Active Orders", icon: UploadCloud, roles: ["Operator"] }
 ];
 

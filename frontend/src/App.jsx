@@ -4,6 +4,7 @@ import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import AppShell from "@/components/layout/AppShell";
 import { useAuth } from "@/context/AuthContext";
 
+const DataManagementPage = lazy(() => import("@/pages/DataManagementPage"));
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/RegisterPage"));
 const ForgotPasswordPage = lazy(() => import("@/pages/ForgotPasswordPage"));
@@ -50,6 +51,7 @@ const App = () => (
         <Route path="procurement" element={<ProtectedRoute roles={["Manager"]}><ProcurementPage /></ProtectedRoute>} />
         <Route path="carbon" element={<ProtectedRoute roles={["Manager"]}><CarbonPage /></ProtectedRoute>} />
         <Route path="reports" element={<ProtectedRoute roles={["Manager"]}><ReportsPage /></ProtectedRoute>} />
+        <Route path="data-management" element={<ProtectedRoute roles={["Manager"]}><DataManagementPage /></ProtectedRoute>} />
 
         {/* Operator Route */}
         <Route path="operator" element={<ProtectedRoute roles={["Operator"]}><OperatorDashboard /></ProtectedRoute>} />
