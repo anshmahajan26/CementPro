@@ -89,7 +89,7 @@ const ForecastPage = () => {
     const payload = {};
     Object.entries(inputFeatures).forEach(([key, value]) => {
       if (value === "") return;
-      if (key === "project_size") { payload[key] = value; return; }
+      if (key === "project_size" || key === "locationName") { payload[key] = value; return; }
       const parsed = Number(value);
       if (!Number.isNaN(parsed)) payload[key] = parsed;
     });

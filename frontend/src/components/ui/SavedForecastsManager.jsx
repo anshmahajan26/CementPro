@@ -4,6 +4,27 @@ import { Input } from "./input";
 import { formatNumber } from "@/lib/utils";
 import api from "@/lib/api";
 
+const LocationNameRenderer = ({ name, lat, lon }) => {
+  const [displayName, setDisplayName] = useState(name);
+  
+  useEffect(() => {
+    if (name && name.startsWith("Prediction Trace (") && lat && lon) {
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`)
+        .then(res => res.json())
+        .then(data => {
+          const fetchedName = data?.address?.city || data?.address?.town || data?.address?.village || data?.address?.county || data?.display_name?.split(",")[0];
+          if (fetchedName) {
+            setDisplayName(`${fetchedName} - Restored Profile`);
+          }
+        }).catch(() => {});
+    } else {
+      setDisplayName(name);
+    }
+  }, [name, lat, lon]);
+
+  return <>{displayName}</>;
+};
+
 const SavedForecastsManager = ({
   isOpen,
   onClose,
@@ -72,7 +93,9 @@ const SavedForecastsManager = ({
               {savedData.map((item) => (
                 <div key={item._id} className="group relative flex items-center justify-between gap-4 p-3 rounded-lg border border-border bg-card hover:border-primary transition-colors">
                   <div className="flex-1">
-                    <h4 className="font-semibold text-primary">{item.name}</h4>
+                    <h4 className="font-semibold text-primary">
+                      <LocationNameRenderer name={item.name} lat={item.latitude} lon={item.longitude} />
+                    </h4>
                     {item.features?.locationName && item.features.locationName !== item.name && (
                       <p className="text-xs text-muted-foreground mt-1 font-medium">{item.features.locationName}</p>
                     )}
