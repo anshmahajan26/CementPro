@@ -131,7 +131,7 @@ const ProcurementPage = () => {
       alert("Please bind a location to this plan before dispatching.");
       return;
     }
-    if (!data.burn_down_plan) {
+    if (!data.recommendation) {
       alert("Burn-down plan data is missing or incomplete. Try simulating again.");
       return;
     }
@@ -139,11 +139,11 @@ const ProcurementPage = () => {
       setIsDispatching(true);
 
       // Create an array of daily orders where requirement > 0
-      const ordersToCreate = data.burn_down_plan
-        .filter(day => day.required_delivery > 0)
+      const ordersToCreate = data.recommendation
+        .filter(day => day.cement_required_tonnes > 0)
         .map(day => ({
           cementType: "OPC 43",
-          quantity: Math.ceil(day.required_delivery),
+          quantity: Math.ceil(day.cement_required_tonnes),
           destination: `${activeLocation.name} (${day.date})`
         }));
 
