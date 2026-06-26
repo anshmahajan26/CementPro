@@ -7,13 +7,14 @@ import { useAuth } from "@/context/AuthContext";
 import { GoogleLogin } from "@react-oauth/google";
 
 const RegisterPage = () => {
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "Operator" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "Operator", plantName: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const [googleToken, setGoogleToken] = useState("");
   const [pendingGoogleData, setPendingGoogleData] = useState(null);
   const [selectedRole, setSelectedRole] = useState("Operator");
+  const [googlePlantName, setGooglePlantName] = useState("");
 
   const { register, googleLogin, googleRegister } = useAuth();
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ const RegisterPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await googleRegister(googleToken, selectedRole);
+      await googleRegister(googleToken, selectedRole, googlePlantName);
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Google Registration failed");
@@ -91,6 +92,12 @@ const RegisterPage = () => {
                     <option>Manager</option>
                     <option>Operator</option>
                   </select>
+                  <Input 
+                    placeholder="RMC Plant Name" 
+                    value={googlePlantName} 
+                    onChange={(e) => setGooglePlantName(e.target.value)} 
+                    required 
+                  />
                   {error ? <p className="text-sm text-red-500">{error}</p> : null}
                   <Button className="w-full" type="submit" disabled={loading}>
                     {loading ? "Completing..." : "Complete"}
@@ -124,6 +131,12 @@ const RegisterPage = () => {
                     <option>Manager</option>
                     <option>Operator</option>
                   </select>
+                  <Input 
+                    placeholder="RMC Plant Name" 
+                    value={form.plantName} 
+                    onChange={(e) => setForm((prev) => ({ ...prev, plantName: e.target.value }))} 
+                    required 
+                  />
                   {error ? <p className="text-sm text-red-500">{error}</p> : null}
                   <Button className="w-full" type="submit" disabled={loading}>
                     {loading ? "Creating..." : "Register"}

@@ -17,6 +17,10 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: false
     },
+    plantName: {
+      type: String,
+      required: true
+    },
     cementType: {
       type: String,
       required: true,
@@ -33,8 +37,12 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["PENDING", "IN_TRANSIT", "DELIVERED", "CANCELLED"],
+      enum: ["PENDING", "IN_TRANSIT", "DELIVERED", "CANCELLED", "EMERGENCY"],
       default: "PENDING"
+    },
+    emergencyAlert: {
+      type: String,
+      default: ""
     }
   },
   { timestamps: true }

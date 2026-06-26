@@ -15,7 +15,7 @@ const CarbonPage = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [isSavedManagerOpen, setIsSavedManagerOpen] = useState(false);
-  const [isCarbonManagerOpen, setIsCarbonManagerOpen] = useState(false);
+  const [isForecastManagerOpen, setIsForecastManagerOpen] = useState(false);
   const [activeLocation, setActiveLocation] = useState(null);
 
   const loadData = async (targetDays = days, targetBlend = blendFactor, customInputs = null, customWeather = null) => {
@@ -141,8 +141,8 @@ const CarbonPage = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-2">
       <SavedForecastsManager
-        isOpen={isSavedManagerOpen}
-        onClose={() => setIsSavedManagerOpen(false)}
+        isOpen={isForecastManagerOpen}
+        onClose={() => setIsForecastManagerOpen(false)}
         onLoadConfig={handleLoadConfig}
       />
       <SavedCarbonsManager
@@ -185,8 +185,8 @@ const CarbonPage = () => {
               <Button className="whitespace-nowrap shrink-0" onClick={() => loadData(days, blendFactor)}>Estimate Emissions</Button>
             </div>
             <div className="flex flex-wrap items-center gap-2 mt-4 sm:mt-0">
-              <Button variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50 whitespace-nowrap shrink-0" onClick={() => setIsSavedManagerOpen(true)}>
-                Bind Forecast Site
+              <Button variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50 whitespace-nowrap shrink-0" onClick={() => setIsForecastManagerOpen(true)}>
+                Load Forecast Profile
               </Button>
               <Button variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 whitespace-nowrap shrink-0" onClick={() => setIsCarbonManagerOpen(true)}>
                 Saved Carbon Profiles

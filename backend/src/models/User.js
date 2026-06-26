@@ -10,6 +10,11 @@ const userSchema = new mongoose.Schema(
       enum: ["Manager", "Operator"],
       default: "Operator"
     },
+    plantName: { 
+      type: String, 
+      required: true,
+      trim: true 
+    },
     isGoogleUser: { type: Boolean, default: false },
     resetOtp: { type: String },
     resetOtpExpiresAt: { type: Date }

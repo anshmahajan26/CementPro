@@ -4,11 +4,11 @@ import { Order } from "../models/Order.js";
 // @route   GET /api/orders
 export const getOrders = async (req, res) => {
   try {
-    let query = {};
+    let query = { plantName: req.user.plantName }; // Filter by user's plant globally
+    
     if (req.user.role === "Operator") {
-      // For now, Operators can see all orders or just ones assigned to them. 
-      // We will let them see all PENDING or IN_TRANSIT orders so they can manage them.
-      query = { status: { $in: ["PENDING", "IN_TRANSIT"] } };
+      // Operators see active orders for their plant
+      query.status = { $in: ["PENDING", "IN_TRANSIT", "EMERGENCY"] };
     }
     
     const orders = await Order.find(query)
@@ -38,6 +38,7 @@ export const createOrder = async (req, res) => {
       cementType,
       quantity,
       destination,
+      plantName: req.user.plantName,
       status: "PENDING"
     });
 
@@ -51,7 +52,7 @@ export const createOrder = async (req, res) => {
 // @route   PUT /api/orders/:id/status
 export const updateOrderStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, emergencyAlert } = req.body;
     const orderId = req.params.id;
 
     const order = await Order.findById(orderId);
@@ -61,13 +62,19 @@ export const updateOrderStatus = async (req, res) => {
 
     // Role-based logic
     if (req.user.role === "Operator") {
-      // Operators can mark as IN_TRANSIT or DELIVERED
-      if (!["IN_TRANSIT", "DELIVERED"].includes(status)) {
-         return res.status(403).json({ message: "Operators can only set status to IN_TRANSIT or DELIVERED" });
+      // Operators can mark as IN_TRANSIT, DELIVERED, or EMERGENCY
+      if (!["IN_TRANSIT", "DELIVERED", "EMERGENCY"].includes(status)) {
+         return res.status(403).json({ message: "Operators can only set status to IN_TRANSIT, DELIVERED, or EMERGENCY" });
       }
       order.operatorId = req.user._id; // Assign themselves as the operator
+      if (status === "EMERGENCY" && emergencyAlert) {
+         order.emergencyAlert = emergencyAlert;
+      }
     } else if (req.user.role === "Manager") {
-      // Managers can CANCEL or change to anything
+      // Managers can CANCEL or change to anything, and clear emergency alerts
+      if (status !== "EMERGENCY") {
+        order.emergencyAlert = "";
+      }
     } else {
       return res.status(403).json({ message: "Not authorized" });
     }

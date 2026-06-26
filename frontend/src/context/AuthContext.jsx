@@ -73,8 +73,8 @@ export const AuthProvider = ({ children }) => {
     return response.data.user;
   };
 
-  const googleRegisterAction = async (token, role) => {
-    const { data } = await api.post("/auth/google-register", { token, role });
+  const googleRegisterAction = async (token, role, plantName) => {
+    const { data } = await api.post("/auth/google-register", { token, role, plantName });
     setToken(data.token);
     setUser(data.user);
     localStorage.setItem("token", data.token);

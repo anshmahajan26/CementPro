@@ -34,11 +34,11 @@ const verifyAndUpgradePasswordIfNeeded = async (user, inputPassword) => {
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, plantName } = req.body;
     const normalizedEmail = normalizeEmail(email);
 
-    if (!name || !normalizedEmail || !password) {
-      return res.status(400).json({ message: "name, email and password are required" });
+    if (!name || !normalizedEmail || !password || !plantName) {
+      return res.status(400).json({ message: "name, email, password, and plantName are required" });
     }
 
     const secret = process.env.JWT_SECRET;
@@ -56,7 +56,8 @@ export const register = async (req, res) => {
       name,
       email: normalizedEmail,
       password: passwordHash,
-      role: role || "Operator"
+      role: role || "Operator",
+      plantName
     });
 
     const token = buildToken(user);
@@ -67,7 +68,8 @@ export const register = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        plantName: user.plantName
       }
     });
   } catch (error) {
@@ -108,7 +110,8 @@ export const login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        plantName: user.plantName
       }
     });
   } catch (error) {
@@ -122,7 +125,8 @@ export const me = async (req, res) => {
       id: req.user._id,
       name: req.user.name,
       email: req.user.email,
-      role: req.user.role
+      role: req.user.role,
+      plantName: req.user.plantName
     }
   });
 };
@@ -161,7 +165,8 @@ export const changePassword = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        plantName: user.plantName
       }
     });
   } catch (error) {
@@ -220,7 +225,7 @@ export const googleLogin = async (req, res) => {
     if (user) {
       return res.json({
         token: buildToken(user),
-        user: { id: user._id, name: user.name, email: user.email, role: user.role }
+        user: { id: user._id, name: user.name, email: user.email, role: user.role, plantName: user.plantName }
       });
     } else {
       return res.status(202).json({
@@ -236,8 +241,8 @@ export const googleLogin = async (req, res) => {
 
 export const googleRegister = async (req, res) => {
   try {
-    const { token, role } = req.body;
-    if (!token || !role) return res.status(400).json({ message: "Token and role are required" });
+    const { token, role, plantName } = req.body;
+    if (!token || !role || !plantName) return res.status(400).json({ message: "Token, role, and plantName are required" });
 
     const ticket = await googleClient.verifyIdToken({
       idToken: token,
@@ -259,12 +264,13 @@ export const googleRegister = async (req, res) => {
       email,
       password: passwordHash,
       role: role,
+      plantName: plantName,
       isGoogleUser: true
     });
 
     return res.status(201).json({
       token: buildToken(user),
-      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+      user: { id: user._id, name: user.name, email: user.email, role: user.role, plantName: user.plantName }
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });

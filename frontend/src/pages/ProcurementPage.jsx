@@ -14,7 +14,7 @@ const ProcurementPage = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [isSavedManagerOpen, setIsSavedManagerOpen] = useState(false);
-  const [isProcurementManagerOpen, setIsProcurementManagerOpen] = useState(false);
+  const [isForecastManagerOpen, setIsForecastManagerOpen] = useState(false);
   const [activeLocation, setActiveLocation] = useState(null);
 
   const loadData = async (targetDays = days, targetInv = inventory, customInputs = null, customWeather = null) => {
@@ -140,10 +140,30 @@ const ProcurementPage = () => {
 
   return (
     <div className="space-y-4">
+      <SavedForecastsManager 
+        isOpen={isForecastManagerOpen}
+        onClose={() => setIsForecastManagerOpen(false)}
+        currentFeatures={{}}
+        currentDays={days}
+        currentRealtime={false}
+        currentResults={null}
+        onLoadConfig={(features, d, rt, res, name) => {
+          handleLoadConfig(features, d, rt, null, name);
+          setIsForecastManagerOpen(false);
+        }}
+      />
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Cement Procurement Planning</CardTitle>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setIsForecastManagerOpen(true)}>
+                ⭐ Load Forecast Profile
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setIsSavedManagerOpen(true)}>
+                ⭐ Saved Procurements
+              </Button>
+            </div>
             {activeLocation ? (
               <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200">
                 📍 {activeLocation.name}
