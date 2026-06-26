@@ -40,6 +40,10 @@ const DashboardPage = () => {
   const [selectedLocationId, setSelectedLocationId] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  
+  // Emergency Orders State
+  const [emergencyOrders, setEmergencyOrders] = useState([]);
+  const [loadingEmergencies, setLoadingEmergencies] = useState(false);
 
   // Load available forecast locations
   const loadLocations = useCallback(async () => {
@@ -66,17 +70,41 @@ const DashboardPage = () => {
     }
   }, []);
 
+  // Load Emergency Orders
+  const loadEmergencies = useCallback(async () => {
+    try {
+      setLoadingEmergencies(true);
+      const response = await api.get("/orders");
+      const emergencies = response.data.filter(o => o.status === "EMERGENCY");
+      setEmergencyOrders(emergencies);
+    } catch (err) {
+      console.error("Failed to load emergency orders:", err);
+    } finally {
+      setLoadingEmergencies(false);
+    }
+  }, []);
+
   // Initial load
   useEffect(() => {
     loadLocations();
     loadDashboard();
-  }, [loadLocations, loadDashboard]);
+    loadEmergencies();
+  }, [loadLocations, loadDashboard, loadEmergencies]);
 
   // Handle location change
   const handleLocationChange = (e) => {
     const val = e.target.value;
     setSelectedLocationId(val);
     loadDashboard(val);
+  };
+
+  const handleResolveEmergency = async (orderId) => {
+    try {
+      await api.put(`/orders/${orderId}/status`, { status: "RESOLVED" });
+      loadEmergencies(); // Refresh list
+    } catch (err) {
+      console.error("Failed to resolve emergency:", err);
+    }
   };
 
   if (loading && !data) {
@@ -169,6 +197,34 @@ const DashboardPage = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Emergency Notifications */}
+      {emergencyOrders.length > 0 && (
+        <Card className="border-red-200 bg-red-50 shadow-sm">
+          <CardHeader className="pb-3 border-b border-red-100">
+            <CardTitle className="text-red-800 flex items-center gap-2">
+              🚨 Emergency Notifications ({emergencyOrders.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {emergencyOrders.map(order => (
+              <div key={order._id} className="bg-white p-4 rounded-xl shadow-sm border border-red-100 flex flex-col justify-between gap-3">
+                <div>
+                  <p className="font-semibold text-red-900">{order.destination}</p>
+                  <p className="text-sm text-red-700">Operator Issue: <strong>{order.emergencyAlert}</strong></p>
+                  <p className="text-xs text-muted-foreground mt-1">Quantity: {order.quantity}t of {order.cementType}</p>
+                </div>
+                <button 
+                  onClick={() => handleResolveEmergency(order._id)}
+                  className="bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-1.5 rounded text-sm transition"
+                >
+                  Mark as Resolved
+                </button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpiCards.map((item) => (

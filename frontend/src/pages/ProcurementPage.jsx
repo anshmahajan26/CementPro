@@ -117,17 +117,28 @@ const ProcurementPage = () => {
   };
 
   const handleCreateOrder = async () => {
-    if (!data || !activeLocation) return;
+    if (!data || !activeLocation || !data.burn_down_plan) return;
     try {
       setIsDispatching(true);
-      await api.post("/orders", {
-        cementType: "OPC 43",
-        quantity: Math.ceil(data.total_cement_required_tonnes),
-        destination: activeLocation.name
-      });
-      alert("Order Dispatched Successfully to Operator!");
+
+      // Create an array of daily orders where requirement > 0
+      const ordersToCreate = data.burn_down_plan
+        .filter(day => day.required_delivery > 0)
+        .map(day => ({
+          cementType: "OPC 43",
+          quantity: Math.ceil(day.required_delivery),
+          destination: `${activeLocation.name} (${day.date})`
+        }));
+
+      if (ordersToCreate.length === 0) {
+        alert("No deliveries required in the simulated period.");
+        return;
+      }
+
+      await api.post("/orders/bulk", { orders: ordersToCreate });
+      alert(`Successfully dispatched ${ordersToCreate.length} daily orders to the Operator!`);
     } catch (err) {
-      alert("Failed to create order: " + (err.response?.data?.message || err.message));
+      alert("Failed to create orders: " + (err.response?.data?.message || err.message));
     } finally {
       setIsDispatching(false);
     }

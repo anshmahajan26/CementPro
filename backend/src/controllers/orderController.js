@@ -48,6 +48,37 @@ export const createOrder = async (req, res) => {
   }
 };
 
+// @desc    Create multiple orders in bulk (Managers only)
+// @route   POST /api/orders/bulk
+export const createOrdersBulk = async (req, res) => {
+  try {
+    const { orders } = req.body;
+    
+    if (req.user.role !== "Manager") {
+      return res.status(403).json({ message: "Only managers can create orders" });
+    }
+
+    if (!Array.isArray(orders) || orders.length === 0) {
+      return res.status(400).json({ message: "Orders array is required" });
+    }
+
+    const newOrders = orders.map(o => ({
+      managerId: req.user._id,
+      procurementId: o.procurementId,
+      cementType: o.cementType || "OPC 43",
+      quantity: o.quantity,
+      destination: o.destination,
+      plantName: req.user.plantName,
+      status: "PENDING"
+    }));
+
+    const insertedOrders = await Order.insertMany(newOrders);
+    res.status(201).json(insertedOrders);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
 // @desc    Update order status
 // @route   PUT /api/orders/:id/status
 export const updateOrderStatus = async (req, res) => {
@@ -71,8 +102,11 @@ export const updateOrderStatus = async (req, res) => {
          order.emergencyAlert = emergencyAlert;
       }
     } else if (req.user.role === "Manager") {
-      // Managers can CANCEL or change to anything, and clear emergency alerts
-      if (status !== "EMERGENCY") {
+      // Managers can CANCEL, change to anything, or resolve emergencies
+      if (status === "RESOLVED") {
+        order.status = "IN_TRANSIT";
+        order.emergencyAlert = "";
+      } else if (status !== "EMERGENCY") {
         order.emergencyAlert = "";
       }
     } else {
