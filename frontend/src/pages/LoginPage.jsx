@@ -15,6 +15,7 @@ const LoginPage = () => {
   const [googleToken, setGoogleToken] = useState("");
   const [pendingGoogleData, setPendingGoogleData] = useState(null);
   const [selectedRole, setSelectedRole] = useState("Operator");
+  const [googlePlantName, setGooglePlantName] = useState("");
 
   const { login, googleLogin, googleRegister } = useAuth();
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await googleRegister(googleToken, selectedRole);
+      await googleRegister(googleToken, selectedRole, googlePlantName);
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Google Registration failed");
@@ -92,6 +93,12 @@ const LoginPage = () => {
                     <option>Manager</option>
                     <option>Operator</option>
                   </select>
+                  <Input 
+                    placeholder="RMC Plant Name" 
+                    value={googlePlantName} 
+                    onChange={(e) => setGooglePlantName(e.target.value)} 
+                    required 
+                  />
                   {error ? <p className="text-sm text-red-500">{error}</p> : null}
                   <Button className="w-full" type="submit" disabled={loading}>
                     {loading ? "Completing..." : "Complete"}
