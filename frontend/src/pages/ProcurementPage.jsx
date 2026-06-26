@@ -123,7 +123,18 @@ const ProcurementPage = () => {
   };
 
   const handleCreateOrder = async () => {
-    if (!data || !activeLocation || !data.burn_down_plan) return;
+    if (!data) {
+      alert("Please simulate the burn-down plan first before dispatching orders.");
+      return;
+    }
+    if (!activeLocation) {
+      alert("Please bind a location to this plan before dispatching.");
+      return;
+    }
+    if (!data.burn_down_plan) {
+      alert("Burn-down plan data is missing or incomplete. Try simulating again.");
+      return;
+    }
     try {
       setIsDispatching(true);
 
