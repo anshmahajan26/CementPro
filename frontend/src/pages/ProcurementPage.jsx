@@ -17,6 +17,7 @@ const ProcurementPage = () => {
   const [isProcurementManagerOpen, setIsProcurementManagerOpen] = useState(false);
   const [isForecastManagerOpen, setIsForecastManagerOpen] = useState(false);
   const [activeLocation, setActiveLocation] = useState(null);
+  const [isDispatching, setIsDispatching] = useState(false);
 
   const loadData = async (targetDays = days, targetInv = inventory, customInputs = null, customWeather = null) => {
     try {
@@ -112,6 +113,23 @@ const ProcurementPage = () => {
     
     if (savedResults) {
       setData(savedResults);
+    }
+  };
+
+  const handleCreateOrder = async () => {
+    if (!data || !activeLocation) return;
+    try {
+      setIsDispatching(true);
+      await api.post("/orders", {
+        cementType: "OPC 43",
+        quantity: Math.ceil(data.total_cement_required_tonnes),
+        destination: activeLocation.name
+      });
+      alert("Order Dispatched Successfully to Operator!");
+    } catch (err) {
+      alert("Failed to create order: " + (err.response?.data?.message || err.message));
+    } finally {
+      setIsDispatching(false);
     }
   };
 
@@ -234,6 +252,15 @@ const ProcurementPage = () => {
         </Card>
       ) : (
         <>
+          <div className="flex justify-end mb-4">
+            <Button 
+              onClick={handleCreateOrder} 
+              disabled={isDispatching}
+              className="bg-green-600 hover:bg-green-700 text-white shadow-md font-semibold"
+            >
+              {isDispatching ? "Dispatching..." : "🚚 Dispatch Order to Operator"}
+            </Button>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <Card>
               <CardContent className="pt-5">
