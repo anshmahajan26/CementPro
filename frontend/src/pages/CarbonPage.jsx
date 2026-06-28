@@ -327,8 +327,8 @@ const CarbonPage = () => {
                       cy="50%"
                       innerRadius={60}
                       outerRadius={100}
-                      labelLine={false}
-                      label={({ percent }) => `${(percent * 100).toFixed(1)}%`}
+                      labelLine={true}
+                      label={({ name, value, percent }) => `${name.split(" ")[0]}: ${formatNumber(value)} kg (${(percent * 100).toFixed(1)}%)`}
                     >
                       <Cell fill="#0ea5e9" />
                       <Cell fill="#8b5cf6" />
