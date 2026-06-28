@@ -152,13 +152,6 @@ const ProcurementPage = () => {
       alert("Burn-down plan data is missing or incomplete. Try simulating again.");
       return;
     }
-
-    // Check if the current silo inventory is empty
-    if (Number(inventory) <= 0) {
-      alert("Silo inventory is completely empty (0 tonnes). You cannot dispatch concrete delivery orders when there is no cement in the silo. Please replenish the silo first.");
-      return;
-    }
-
     try {
       setIsDispatching(true);
 
@@ -175,26 +168,11 @@ const ProcurementPage = () => {
 
       if (ordersToCreate.length === 0) {
         alert("No deliveries required in the simulated period.");
-        setIsDispatching(false);
-        return;
-      }
-
-      // Calculate total cement required across all these dispatch orders
-      const totalRequiredCement = ordersToCreate.reduce((sum, o) => sum + o.quantity, 0);
-      if (totalRequiredCement > Number(inventory)) {
-        alert(`Insufficient Silo Stock! Total cement required for this dispatch is ${totalRequiredCement} tonnes, but current silo inventory only holds ${inventory} tonnes. Please replenish your silo before dispatching.`);
-        setIsDispatching(false);
         return;
       }
 
       await api.post("/orders/bulk", { orders: ordersToCreate });
       alert(`Successfully dispatched ${ordersToCreate.length} daily orders to the Operator!`);
-
-      // Deduct dispatched cement from current silo inventory in local state
-      const updatedInventory = Math.max(0, Number(inventory) - totalRequiredCement);
-      setInventory(updatedInventory);
-      // Re-trigger the simulation automatically with the updated inventory level
-      loadData(days, updatedInventory);
     } catch (err) {
       alert("Failed to create orders: " + (err.response?.data?.message || err.message));
     } finally {
