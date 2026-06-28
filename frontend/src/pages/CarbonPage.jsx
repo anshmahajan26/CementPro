@@ -11,6 +11,14 @@ import SavedForecastsManager from "@/components/ui/SavedForecastsManager";
 import SavedCarbonsManager from "@/components/ui/SavedCarbonsManager";
 import LocationNameRenderer from "@/components/ui/LocationNameRenderer";
 
+const formatShortKg = (val) => {
+  if (val === null || val === undefined || Number.isNaN(Number(val))) return "-";
+  const num = Number(val);
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(0)}k`;
+  return num.toString();
+};
+
 const CarbonPage = () => {
   const [days, setDays] = useState(7);
   const [blendFactor, setBlendFactor] = useState("0.92");
@@ -325,10 +333,11 @@ const CarbonPage = () => {
                       nameKey="name"
                       cx="50%"
                       cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
+                      innerRadius={55}
+                      outerRadius={85}
+                      minAngle={15}
                       labelLine={true}
-                      label={({ name, value, percent }) => `${name.split(" ")[0]}: ${formatNumber(value)} kg (${(percent * 100).toFixed(1)}%)`}
+                      label={({ name, value, percent }) => `${name.split(" ")[0]}: ${formatShortKg(value)} kg (${(percent * 100).toFixed(0)}%)`}
                     >
                       <Cell fill="#0ea5e9" />
                       <Cell fill="#8b5cf6" />
