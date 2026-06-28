@@ -125,6 +125,27 @@ export const calculateProcurement = (predictions, rows, currentInventoryTonnes =
     riskLevel = "SURPLUS";
   }
 
+  const maxDemandItem = recommendation.reduce((max, item) => item.predicted_demand_m3 > max.predicted_demand_m3 ? item : max, recommendation[0]);
+  const avgDemand = totalDemandM3 / (recommendation.length || 1);
+  const weatherImpactItem = predictions.find(item => item.weather_factor && item.weather_factor !== 1);
+
+  let insight = "";
+  if (totalShortfall > 0) {
+    insight = `AI optimization warns of a ${round(totalShortfall)}t cement shortfall. Adjust batching schedules and secure supply to avoid halting concrete production.`;
+  } else if (weatherImpactItem) {
+    const cond = weatherImpactItem.weather_condition;
+    const factorPct = Math.round(Math.abs(1 - weatherImpactItem.weather_factor) * 100);
+    if (weatherImpactItem.weather_factor < 1) {
+      insight = `AI weather module predicts ${cond} on ${weatherImpactItem.date}, reducing RMC demand by ${factorPct}%. Keep water-binder ratio at ${round(avgWbr, 3)} to prevent moisture fluctuations.`;
+    } else {
+      insight = `AI weather module predicts hot ${cond} on ${weatherImpactItem.date}, increasing RMC demand. Maintain aggregate split near ${round(avgAgg10)}:${round(avgAgg20)} to support higher rate batching.`;
+    }
+  } else if (maxDemandItem && maxDemandItem.predicted_demand_m3 > avgDemand * 1.25) {
+    insight = `AI detects a demand peak of ${maxDemandItem.predicted_demand_m3}m³ on ${maxDemandItem.date}. Maintain aggregate split near ${round(avgAgg10)}:${round(avgAgg20)} to handle high-throughput mixing.`;
+  } else {
+    insight = `Procurement pipeline is stable. Maintain standard mix design ratios: cement at ${round(avgCementKgM3)} kg/m³ and aggregate split of ${round(avgAgg10)}:${round(avgAgg20)}.`;
+  }
+
   return {
     averages: {
       cement_kg_m3: round(avgCementKgM3),
@@ -148,7 +169,7 @@ export const calculateProcurement = (predictions, rows, currentInventoryTonnes =
             : "Inventory covers forecasted requirements sufficiently. No immediate procurement stress.",
     recommendation,
     purchase_alerts,
-    insight: `Maintain aggregate split near ${round(avgAgg10)}:${round(avgAgg20)} and keep water-binder ratio around ${round(avgWbr, 3)} for stable quality.`
+    insight
   };
 };
 

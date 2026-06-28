@@ -372,21 +372,21 @@ const ProcurementPage = () => {
 
           <Card>
             <CardHeader className="px-4 sm:px-6 pb-2">
-              <CardTitle className="text-sm sm:text-base">Demand vs Cement Trend</CardTitle>
+              <CardTitle className="text-sm sm:text-base">Demand vs Cement & Silo Trend</CardTitle>
             </CardHeader>
             <CardContent className="h-64 sm:h-80 md:h-[400px] px-1 sm:px-4">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data.recommendation} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
+                <BarChart data={data.recommendation} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                   <XAxis dataKey="date" tick={{fontSize: 10}} tickFormatter={v => v?.slice(5)} minTickGap={20} label={{ value: "Date", position: "insideBottom", offset: -12, fontSize: 11 }} />
                   <YAxis yAxisId="left" tick={{fontSize: 10}} width={45} label={{ value: "Demand (m³)", angle: -90, position: "insideLeft", style: {textAnchor: 'middle'}, fontSize: 11 }} />
-                  <YAxis yAxisId="right" orientation="right" tick={{fontSize: 10}} width={40} label={{ value: "Cement (t)", angle: 90, position: "insideRight", style: {textAnchor: 'middle'}, fontSize: 11 }} />
+                  <YAxis yAxisId="right" orientation="right" tick={{fontSize: 10}} width={40} label={{ value: "Cement & Silo (t)", angle: 90, position: "insideRight", style: {textAnchor: 'middle'}, fontSize: 11 }} />
                   <Tooltip contentStyle={{ borderRadius: "10px", backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
                   <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
-                  <Line yAxisId="left" type="monotone" dataKey="predicted_demand_m3" name="RMC Demand" stroke="#0284c7" strokeWidth={2} dot={{r: 2}} activeDot={{r: 4}} />
-                  <Line yAxisId="right" type="monotone" dataKey="cement_required_tonnes" name="Cement Load" stroke="#f97316" strokeWidth={2} dot={{r: 2}} activeDot={{r: 4}} />
-                  <Line yAxisId="right" type="stepAfter" dataKey="inventory_remaining_tonnes" name="Silo" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" dot={false} />
-                </LineChart>
+                  <Bar yAxisId="left" dataKey="predicted_demand_m3" name="RMC Demand (m³)" fill="#0284c7" radius={[4, 4, 0, 0]} />
+                  <Bar yAxisId="right" dataKey="cement_required_tonnes" name="Cement Load (t)" fill="#f97316" radius={[4, 4, 0, 0]} />
+                  <Bar yAxisId="right" dataKey="inventory_remaining_tonnes" name="Silo Remaining (t)" fill="#10b981" radius={[4, 4, 0, 0]} />
+                </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
