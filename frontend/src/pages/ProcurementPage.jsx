@@ -200,52 +200,49 @@ const ProcurementPage = () => {
         }}
       />
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Cement Procurement Planning</CardTitle>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setIsForecastManagerOpen(true)}>
-                ⭐ Load Forecast Profile
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setIsSavedManagerOpen(true)}>
-                ⭐ Saved Procurements
-              </Button>
-            </div>
+        <CardHeader className="pb-3 px-4 sm:px-6">
+          {/* Title row */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle className="text-base sm:text-lg">Cement Procurement Planning</CardTitle>
             {activeLocation ? (
-              <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200">
+              <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 text-[10px] sm:text-xs self-start sm:self-auto">
                 📍 {activeLocation.name}
               </Badge>
             ) : null}
           </div>
+          {/* Action buttons row */}
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Button variant="outline" size="sm" className="text-xs sm:text-sm" onClick={() => setIsForecastManagerOpen(true)}>
+              ⭐ Load Forecast Profile
+            </Button>
+            <Button variant="outline" size="sm" className="text-xs sm:text-sm" onClick={() => setIsProcurementManagerOpen(true)}>
+              📋 Saved Procurements
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Forecast Days:</span>
-                <Input type="number" min={1} max={60} value={days} onChange={(e) => setDays(e.target.value)} className="w-24" />
+        <CardContent className="px-4 sm:px-6">
+          {/* Inputs + simulate row */}
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:items-center sm:gap-4">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-medium text-muted-foreground">Forecast Days</span>
+                <Input type="number" min={1} max={60} value={days} onChange={(e) => setDays(e.target.value)} className="w-full sm:w-24" />
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Current Silo (t):</span>
-                <Input type="number" min={0} value={inventory} onChange={(e) => setInventory(e.target.value)} className="w-32 border-primary/50 bg-primary/5 font-semibold text-primary" />
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-medium text-muted-foreground">Current Silo (t)</span>
+                <Input type="number" min={0} value={inventory} onChange={(e) => setInventory(e.target.value)} className="w-full sm:w-32 border-primary/50 bg-primary/5 font-semibold text-primary" />
               </div>
-              <Button className="whitespace-nowrap shrink-0" onClick={() => loadData(days, inventory)} disabled={isSimulating}>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button className="flex-1 sm:flex-none whitespace-nowrap" onClick={() => loadData(days, inventory)} disabled={isSimulating}>
                 {isSimulating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Simulating...
-                  </>
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Simulating...</>
                 ) : (
                   "Simulate Burn-Down"
                 )}
               </Button>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 mt-4 sm:mt-0">
-              <Button variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 whitespace-nowrap shrink-0" onClick={() => setIsSavedManagerOpen(true)}>
+              <Button variant="outline" className="flex-1 sm:flex-none text-amber-600 border-amber-200 bg-amber-50 whitespace-nowrap" onClick={() => setIsSavedManagerOpen(true)}>
                 Bind Forecast Site
-              </Button>
-              <Button variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 whitespace-nowrap shrink-0" onClick={() => setIsProcurementManagerOpen(true)}>
-                Saved Procurement Plans
               </Button>
             </div>
           </div>
@@ -290,44 +287,41 @@ const ProcurementPage = () => {
       ) : (
         <>
           <div className="flex justify-end mb-4">
-            <Button 
-              onClick={handleCreateOrder} 
+            <Button
+              onClick={handleCreateOrder}
               disabled={isDispatching}
-              className="bg-green-600 hover:bg-green-700 text-white shadow-md font-semibold"
+              className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white shadow-md font-semibold text-sm"
             >
               {isDispatching ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Dispatching...
-                </>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Dispatching...</>
               ) : (
                 "🚚 Dispatch Order to Operator"
               )}
             </Button>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
             <Card>
-              <CardContent className="pt-5">
-                <p className="text-sm text-muted-foreground">Total Cement Required</p>
-                <p className="font-heading text-3xl text-primary">{formatNumber(data.total_cement_required_tonnes)} t</p>
+              <CardContent className="pt-4 px-3 sm:px-5 sm:pt-5">
+                <p className="text-[10px] sm:text-sm text-muted-foreground leading-tight">Total Cement Required</p>
+                <p className="font-heading text-xl sm:text-3xl text-primary mt-1">{formatNumber(data.total_cement_required_tonnes)} t</p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-5">
-                <p className="text-sm text-muted-foreground">Average Cement Ratio</p>
-                <p className="font-heading text-3xl text-primary">{formatNumber(data.averages.cement_kg_m3)} kg/m3</p>
+              <CardContent className="pt-4 px-3 sm:px-5 sm:pt-5">
+                <p className="text-[10px] sm:text-sm text-muted-foreground leading-tight">Avg Cement Ratio</p>
+                <p className="font-heading text-xl sm:text-3xl text-primary mt-1">{formatNumber(data.averages.cement_kg_m3)} kg/m³</p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-5">
-                <p className="text-sm text-muted-foreground">Avg Daily Cement</p>
-                <p className="font-heading text-3xl text-primary">{formatNumber(data.avg_daily_cement_tonnes)} t/day</p>
+              <CardContent className="pt-4 px-3 sm:px-5 sm:pt-5">
+                <p className="text-[10px] sm:text-sm text-muted-foreground leading-tight">Avg Daily Cement</p>
+                <p className="font-heading text-xl sm:text-3xl text-primary mt-1">{formatNumber(data.avg_daily_cement_tonnes)} t/day</p>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-5">
-                <p className="text-sm text-muted-foreground">Procurement Risk</p>
-                <p className="font-heading text-3xl text-primary">{data.procurement_risk_level}</p>
+              <CardContent className="pt-4 px-3 sm:px-5 sm:pt-5">
+                <p className="text-[10px] sm:text-sm text-muted-foreground leading-tight">Procurement Risk</p>
+                <p className="font-heading text-xl sm:text-3xl text-primary mt-1">{data.procurement_risk_level}</p>
               </CardContent>
             </Card>
           </div>
@@ -346,48 +340,48 @@ const ProcurementPage = () => {
 
           <div className="grid gap-4 xl:grid-cols-2">
             <Card>
-              <CardHeader>
-                <CardTitle>Demand vs Cement Trend</CardTitle>
+              <CardHeader className="px-4 sm:px-6 pb-2">
+                <CardTitle className="text-sm sm:text-base">Demand vs Cement Trend</CardTitle>
               </CardHeader>
-              <CardContent className="h-72">
+              <CardContent className="h-52 sm:h-72 px-1 sm:px-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data.recommendation} margin={{ top: 20, right: 30, left: 30, bottom: 25 }}>
+                  <LineChart data={data.recommendation} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                    <XAxis dataKey="date" tick={{fontSize: 12}} stroke="hsl(var(--muted-foreground))" label={{ value: "Date", position: "insideBottom", offset: -18, fill: "hsl(var(--muted-foreground))", fontSize: 13 }} />
-                    <YAxis yAxisId="left" tick={{fontSize: 12}} stroke="hsl(var(--muted-foreground))" label={{ value: "RMC Demand (m³)", angle: -90, position: "insideLeft", style: {textAnchor: 'middle'}, offset: -15, fill: "hsl(var(--muted-foreground))", fontSize: 13 }} />
-                    <YAxis yAxisId="right" orientation="right" tick={{fontSize: 12}} stroke="hsl(var(--muted-foreground))" label={{ value: "Cement Load (t)", angle: 90, position: "insideRight", style: {textAnchor: 'middle'}, offset: -15, fill: "hsl(var(--muted-foreground))", fontSize: 13 }} />
+                    <XAxis dataKey="date" tick={{fontSize: 10}} tickFormatter={v => v?.slice(5)} minTickGap={20} label={{ value: "Date", position: "insideBottom", offset: -12, fontSize: 11 }} />
+                    <YAxis yAxisId="left" tick={{fontSize: 10}} width={45} label={{ value: "Demand (m³)", angle: -90, position: "insideLeft", style: {textAnchor: 'middle'}, fontSize: 11 }} />
+                    <YAxis yAxisId="right" orientation="right" tick={{fontSize: 10}} width={40} label={{ value: "Cement (t)", angle: 90, position: "insideRight", style: {textAnchor: 'middle'}, fontSize: 11 }} />
                     <Tooltip contentStyle={{ borderRadius: "10px", backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                    <Legend verticalAlign="top" height={36} />
-                    <Line yAxisId="left" type="monotone" dataKey="predicted_demand_m3" name="RMC Demand (m³)" stroke="#0284c7" strokeWidth={3} dot={{r: 3}} activeDot={{r: 6}} />
-                    <Line yAxisId="right" type="monotone" dataKey="cement_required_tonnes" name="Cement Load (Tonnes)" stroke="#f97316" strokeWidth={3} dot={{r: 3}} activeDot={{r: 6}} />
-                    <Line yAxisId="right" type="stepAfter" dataKey="inventory_remaining_tonnes" name="Silo Inventory (t)" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+                    <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
+                    <Line yAxisId="left" type="monotone" dataKey="predicted_demand_m3" name="RMC Demand" stroke="#0284c7" strokeWidth={2} dot={{r: 2}} activeDot={{r: 4}} />
+                    <Line yAxisId="right" type="monotone" dataKey="cement_required_tonnes" name="Cement Load" stroke="#f97316" strokeWidth={2} dot={{r: 2}} activeDot={{r: 4}} />
+                    <Line yAxisId="right" type="stepAfter" dataKey="inventory_remaining_tonnes" name="Silo" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>Aggregate Mix Snapshot</CardTitle>
+              <CardHeader className="px-4 sm:px-6 pb-2">
+                <CardTitle className="text-sm sm:text-base">Aggregate Mix Snapshot</CardTitle>
               </CardHeader>
-              <CardContent className="h-72">
+              <CardContent className="h-52 sm:h-72 px-1 sm:px-4">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={[
-                        { name: "10mm Aggregate", value: data.averages.aggregate_10mm_pct },
-                        { name: "20mm Aggregate", value: data.averages.aggregate_20mm_pct }
+                        { name: "10mm Agg", value: data.averages.aggregate_10mm_pct },
+                        { name: "20mm Agg", value: data.averages.aggregate_20mm_pct }
                       ]}
                       dataKey="value"
                       nameKey="name"
-                      outerRadius={90}
+                      outerRadius={80}
                       label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
                     >
                       <Cell fill="#06b6d4" />
                       <Cell fill="#f43f5e" />
                     </Pie>
                     <Tooltip formatter={(val) => `${formatNumber(val, 1)}%`} contentStyle={{ borderRadius: "10px", backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                    <Legend />
+                    <Legend wrapperStyle={{ fontSize: 12 }} />
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -395,18 +389,18 @@ const ProcurementPage = () => {
           </div>
 
           <Card>
-            <CardHeader>
-              <CardTitle>Daily Cement Requirement Bars</CardTitle>
+            <CardHeader className="px-4 sm:px-6 pb-2">
+              <CardTitle className="text-sm sm:text-base">Daily Cement Requirement Bars</CardTitle>
             </CardHeader>
-            <CardContent className="h-72">
+            <CardContent className="h-52 sm:h-72 px-1 sm:px-4">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.recommendation} margin={{ top: 20, right: 30, left: 30, bottom: 25 }}>
+                <BarChart data={data.recommendation} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                  <XAxis dataKey="date" tick={{fontSize: 12}} stroke="hsl(var(--muted-foreground))" label={{ value: "Date", position: "insideBottom", offset: -18, fill: "hsl(var(--muted-foreground))", fontSize: 13 }} />
-                  <YAxis tick={{fontSize: 12}} stroke="hsl(var(--muted-foreground))" label={{ value: "Cement Load (Tonnes)", angle: -90, position: "insideLeft", style: {textAnchor: 'middle'}, offset: -15, fill: "hsl(var(--muted-foreground))", fontSize: 13 }} />
+                  <XAxis dataKey="date" tick={{fontSize: 10}} tickFormatter={v => v?.slice(5)} minTickGap={15} label={{ value: "Date", position: "insideBottom", offset: -12, fontSize: 11 }} />
+                  <YAxis tick={{fontSize: 10}} width={48} label={{ value: "Cement (t)", angle: -90, position: "insideLeft", style: {textAnchor: 'middle'}, fontSize: 11 }} />
                   <Tooltip cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }} contentStyle={{ borderRadius: "10px", backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                  <Legend verticalAlign="top" height={36} />
-                  <Bar dataKey="cement_required_tonnes" name="Daily Cement Required (Tonnes)" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                  <Legend verticalAlign="top" height={28} wrapperStyle={{ fontSize: 11 }} />
+                  <Bar dataKey="cement_required_tonnes" name="Daily Cement (t)" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
