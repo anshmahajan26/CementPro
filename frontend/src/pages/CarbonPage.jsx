@@ -255,7 +255,13 @@ const CarbonPage = () => {
             <Card>
               <CardContent className="pt-5">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Sustainability Rank</p>
-                <p className="font-heading text-3xl text-primary">{formatNumber(data.sustainability_score)}</p>
+                <p className="font-heading text-3xl text-primary">
+                  {formatNumber(
+                    data.sustainability_score !== undefined && data.sustainability_score !== null && data.sustainability_score > 0
+                      ? data.sustainability_score
+                      : Math.max(0, Math.min(100, 100 - ((data.emission_intensity_kgco2_per_m3 || 350) - 150) * 0.286))
+                  )}
+                </p>
               </CardContent>
             </Card>
             <Card>
