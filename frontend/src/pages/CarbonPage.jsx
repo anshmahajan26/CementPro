@@ -287,14 +287,15 @@ const CarbonPage = () => {
               </CardHeader>
               <CardContent className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={data.daily} margin={{ top: 10, right: 10, left: 20, bottom: 25 }}>
+                  <BarChart data={data.daily} margin={{ top: 10, right: 10, left: 20, bottom: 25 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                     <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 12 }} tickMargin={10} minTickGap={30} label={{ value: 'Simulation Timeline (Days)', position: 'insideBottom', offset: -15, style: { fill: '#475569', fontSize: 13, fontWeight: 500 } }} />
                     <YAxis tick={{ fill: '#64748b', fontSize: 12 }} label={{ value: 'Emissions Generated (kgCO₂)', angle: -90, position: 'insideLeft', offset: -10, style: { fill: '#475569', fontSize: 13, fontWeight: 500 } }} />
                     <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                    <Area type="monotone" name="Manufacturing Output (Cement)" dataKey="cement_emission_kgco2" stackId="1" stroke="#0ea5e9" strokeWidth={2} fill="#e0f2fe" fillOpacity={0.8} />
-                    <Area type="monotone" name="Logistics & Operations (Transport, Mining, Batching)" dataKey="transport_emission_kgco2" stackId="1" stroke="#f59e0b" strokeWidth={2} fill="#fef3c7" fillOpacity={0.8} />
-                  </AreaChart>
+                    <Legend verticalAlign="top" height={36} />
+                    <Bar dataKey="cement_emission_kgco2" name="Manufacturing Output (Cement)" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="transport_emission_kgco2" name="Logistics & Operations (Transport, Mining, Batching)" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                  </BarChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
@@ -319,12 +320,13 @@ const CarbonPage = () => {
                       innerRadius={60}
                       outerRadius={100}
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
+                      label={({ name, percent }) => `${(percent * 100).toFixed(1)}%`}
                     >
                       <Cell fill="#0ea5e9" />
                       <Cell fill="#f59e0b" />
                     </Pie>
                     <Tooltip formatter={(value) => [`${formatNumber(value)} kgCO2`, 'Total Generated']} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                    <Legend verticalAlign="bottom" height={36} />
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>
