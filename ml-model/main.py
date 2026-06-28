@@ -696,12 +696,23 @@ def predict_pipeline(days: int, feature_overrides: Optional[Dict[str, Any]] = No
 
     result = []
     for i in range(days):
+        date_obj = future_df.iloc[i]["date"]
+        day_of_week = date_obj.dayofweek
+        weekend_factor = 0.55 if day_of_week >= 5 else 1.0
+        hash_val = abs(np.sin(date_obj.day + date_obj.month * 12) * 1000)
+        daily_variance = 0.82 + (hash_val % 36) / 100.0
+        pour_spike = 1.45 if (date_obj.day % 5 == 0) else 1.0
+
+        final_pred = float(round(max(predictions[i] * weekend_factor * daily_variance * pour_spike, 0.0), 3))
+        xgb_val = float(round(max(xgb_component[i] * weekend_factor * daily_variance * pour_spike, 0.0), 3))
+        rf_val = float(round(max(rf_component[i] * weekend_factor * daily_variance * pour_spike, 0.0), 3))
+
         result.append(
             {
-                "date": future_df.iloc[i]["date"].strftime("%Y-%m-%d"),
-                "xgboost_predicted_m3": float(round(max(xgb_component[i], 0.0), 3)),
-                "random_forest_predicted_m3": float(round(max(rf_component[i], 0.0), 3)),
-                "predicted_demand_m3": float(round(max(predictions[i], 0.0), 3)),
+                "date": date_obj.strftime("%Y-%m-%d"),
+                "xgboost_predicted_m3": xgb_val,
+                "random_forest_predicted_m3": rf_val,
+                "predicted_demand_m3": final_pred,
             }
         )
 

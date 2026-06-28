@@ -183,11 +183,11 @@ const CarbonPage = () => {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Cement Blend:</span>
-                <select value={blendFactor} onChange={(e) => setBlendFactor(e.target.value)} className="flex h-10 w-44 items-center justify-between rounded-md border border-emerald-500/50 bg-emerald-500/5 px-3 py-2 text-sm font-semibold text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50">
-                  <option value="0.92">OPC (Standard)</option>
-                  <option value="0.72">PPC (Fly Ash)</option>
-                  <option value="0.65">PSC (Slag)</option>
-                  <option value="0.55">LC3 (Limestone)</option>
+                <select value={blendFactor} onChange={(e) => setBlendFactor(e.target.value)} className="flex h-10 w-64 items-center justify-between rounded-md border border-emerald-500/50 bg-emerald-500/5 px-3 py-2 text-sm font-semibold text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50">
+                  <option value="0.92">OPC Standard (0.92 CO₂ - 100% Impact)</option>
+                  <option value="0.72">PPC Fly Ash (0.72 CO₂ - 22% Reduction)</option>
+                  <option value="0.65">PSC Slag (0.65 CO₂ - 29% Reduction)</option>
+                  <option value="0.55">LC3 Limestone (0.55 CO₂ - 40% Reduction - BEST)</option>
                 </select>
               </div>
               <Button className="whitespace-nowrap shrink-0" onClick={() => loadData(days, blendFactor)} disabled={isEstimating}>
@@ -293,8 +293,9 @@ const CarbonPage = () => {
                     <YAxis tick={{ fill: '#64748b', fontSize: 12 }} label={{ value: 'Emissions Generated (kgCO₂)', angle: -90, position: 'insideLeft', offset: -10, style: { fill: '#475569', fontSize: 13, fontWeight: 500 } }} />
                     <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                     <Legend verticalAlign="top" height={36} />
-                    <Bar dataKey="cement_emission_kgco2" name="Manufacturing Output (Cement)" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="transport_emission_kgco2" name="Logistics & Operations (Transport, Mining, Batching)" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="cement_emission_kgco2" name="Manufacturing (Cement)" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="batching_emission_kgco2" name="Batching Operations" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="transport_emission_kgco2" name="Vehicle Transport" fill="#f59e0b" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -305,13 +306,14 @@ const CarbonPage = () => {
                 <CardTitle>Carbon Output Origin Ratio</CardTitle>
               </CardHeader>
               <CardContent className="h-80 relative">
-                <div className="absolute top-0 right-6 text-xs text-muted-foreground max-w-[150px] text-right">Metrics partitioned between core material synthesis and heavy logistics operations.</div>
+                <div className="absolute top-0 right-6 text-xs text-muted-foreground max-w-[150px] text-right">Metrics partitioned between core material synthesis, plant operations, and logistics.</div>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={[
                         { name: "Manufacturing (Cement)", value: data.daily.reduce((s, d) => s + d.cement_emission_kgco2, 0) },
-                        { name: "Logistics & Operations", value: data.daily.reduce((s, d) => s + d.transport_emission_kgco2, 0) }
+                        { name: "Batching Operations", value: data.daily.reduce((s, d) => s + d.batching_emission_kgco2, 0) },
+                        { name: "Vehicle Transport", value: data.daily.reduce((s, d) => s + d.transport_emission_kgco2, 0) }
                       ]}
                       dataKey="value"
                       nameKey="name"
@@ -320,9 +322,10 @@ const CarbonPage = () => {
                       innerRadius={60}
                       outerRadius={100}
                       labelLine={false}
-                      label={({ name, percent }) => `${(percent * 100).toFixed(1)}%`}
+                      label={({ percent }) => `${(percent * 100).toFixed(1)}%`}
                     >
                       <Cell fill="#0ea5e9" />
+                      <Cell fill="#8b5cf6" />
                       <Cell fill="#f59e0b" />
                     </Pie>
                     <Tooltip formatter={(value) => [`${formatNumber(value)} kgCO2`, 'Total Generated']} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />

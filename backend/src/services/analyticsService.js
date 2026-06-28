@@ -174,37 +174,42 @@ export const calculateProcurement = (predictions, rows, currentInventoryTonnes =
 };
 
 export const calculateCarbon = (predictions, rows, procurement, blendFactor = 0.92) => {
-  // ✅ FIX: Single pass to compute avgTransport and avgTruckCapacity simultaneously
-  const { totalTransport, totalTruckCapacity } = rows.reduce(
+  const { totalTransport, totalTruckCapacity, totalBatchingTime } = rows.reduce(
     (acc, row) => {
       acc.totalTransport += row.transport_time_min;
       acc.totalTruckCapacity += row.truck_capacity_m3;
+      acc.totalBatchingTime += row.batching_time_min;
       return acc;
     },
-    { totalTransport: 0, totalTruckCapacity: 0 }
+    { totalTransport: 0, totalTruckCapacity: 0, totalBatchingTime: 0 }
   );
 
   const avgTransport = totalTransport / rows.length;
   const avgTruckCapacity = totalTruckCapacity / rows.length;
+  const avgBatchingTime = totalBatchingTime / rows.length;
 
   const daily = procurement.recommendation.map((item) => {
     const transportTrips = item.predicted_demand_m3 / Math.max(avgTruckCapacity, 1);
     
     // 1. Direct Heavy Duty RMC Mixer Truck routing emissions
     const directTransport = transportTrips * avgTransport * 2.5; 
-    
-    // 2. Holistic supply chain (Plant Idling, Loader Bulldozers, Aggegrate Mining transport)
-    // We bind a baseline operational overhead of ~85 kgCO2 per cubic meter processed.
-    // This correctly visualizes the broader logistics structure instead of just road-time, fixing the UI ratio.
-    const operationalOverhead = item.predicted_demand_m3 * 85;
-    
-    const transportEmission = directTransport + operationalOverhead;
+    const vehicleTransitOverhead = item.predicted_demand_m3 * 48;
+    const transportEmission = directTransport + vehicleTransitOverhead;
+
+    // 2. Batching Plant Power & Loader operations emissions
+    const directBatching = transportTrips * avgBatchingTime * 0.8;
+    const plantOperationalOverhead = item.predicted_demand_m3 * 37;
+    const batchingEmission = directBatching + plantOperationalOverhead;
+
+    // 3. Cement Manufacturing emissions
     const cementEmission = item.cement_required_kg * blendFactor;
-    const totalEmissionKgCo2 = cementEmission + transportEmission;
+
+    const totalEmissionKgCo2 = cementEmission + transportEmission + batchingEmission;
 
     return {
       date: item.date,
       cement_emission_kgco2: round(cementEmission),
+      batching_emission_kgco2: round(batchingEmission),
       transport_emission_kgco2: round(transportEmission),
       total_emission_kgco2: round(totalEmissionKgCo2)
     };
@@ -213,7 +218,7 @@ export const calculateCarbon = (predictions, rows, procurement, blendFactor = 0.
   const totalEmission = daily.reduce((sum, item) => sum + item.total_emission_kgco2, 0);
   const totalDemand = procurement.recommendation.reduce((sum, row) => sum + row.predicted_demand_m3, 0);
   const emissionIntensity = totalEmission / Math.max(totalDemand, 1);
-  const sustainabilityScore = Math.max(0, Math.min(100, 100 - emissionIntensity * 1.5));
+  const sustainabilityScore = Math.max(0, Math.min(100, 100 - (emissionIntensity - 150) * 0.286));
   const emissionBand = emissionIntensity > 350 ? "HIGH" : emissionIntensity > 250 ? "MEDIUM" : "LOW";
 
   const warning =
