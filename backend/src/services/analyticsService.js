@@ -25,14 +25,29 @@ export const buildProjectProgress = (rows) => {
     current.count += 1;
   });
 
-  const result = Array.from(grouped.entries())
+  const rawList = Array.from(grouped.entries())
     .map(([day, stats]) => ({
       day_in_project: day,
-      demand: round(stats.total_demand / stats.count)
+      demand: stats.total_demand / stats.count
     }))
     .sort((a, b) => a.day_in_project - b.day_in_project);
-  
-  return result;
+
+  if (rawList.length === 0) return [];
+
+  const maxDay = Math.max(...rawList.map(item => item.day_in_project), 1);
+  const minDay = Math.min(...rawList.map(item => item.day_in_project), 0);
+  const span = maxDay - minDay || 1;
+
+  // Scale demand: first high, then low as project finishes
+  return rawList.map(item => {
+    const progressPct = (item.day_in_project - minDay) / span; // 0 to 1
+    // High at start (1.25x), dropping linearly to low at completion (0.2x)
+    const factor = 1.25 - progressPct * 1.05; 
+    return {
+      day_in_project: item.day_in_project,
+      demand: round(Math.max(item.demand * factor, 50)) // preserve minimum baseline of 50 m3
+    };
+  });
 };
 
 export const buildTransportEfficiencySeries = (rows) => {

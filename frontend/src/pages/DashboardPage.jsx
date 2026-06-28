@@ -382,119 +382,122 @@ const DashboardPage = () => {
         </CardContent>
       </Card>
 
-      {/* Charts Row 2 */}
-      <div className="grid gap-4 xl:grid-cols-3">
-        <Card>
-          <CardHeader className="px-4 sm:px-6 pb-2">
-            <CardTitle className="text-sm sm:text-base">Project Progress vs Demand</CardTitle>
-          </CardHeader>
-          <CardContent className="px-2 sm:px-4 pb-6">
-            <div className="h-56 sm:h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.charts.project_progress_vs_demand} margin={{ bottom: 15, left: 0, right: 8 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="day_in_project" tick={{ fontSize: 10 }} minTickGap={15}>
-                    <Label value="Day of Project" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
-                  </XAxis>
-                  <YAxis tick={{ fontSize: 10 }} width={52}>
-                    <Label value="Volume (m³)" angle={-90} position="insideLeft" style={{ textAnchor: "middle", fontSize: 11 }} />
-                  </YAxis>
-                  <Tooltip labelFormatter={(label) => `Project Day: ${label}`} cursor={{ fill: 'transparent' }} />
-                  <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
-                  <Bar name="Demand Volume (m³)" dataKey="demand" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            {/* Dynamic AI Insight */}
-            <div className="mt-4 p-3.5 bg-indigo-500/5 rounded-xl border border-indigo-500/10 text-xs sm:text-sm text-indigo-950 dark:text-indigo-200">
-              <span className="font-bold text-indigo-800 dark:text-indigo-300 flex items-center gap-1.5 mb-1">
-                <span>📈</span> Project Timeline Insight
-              </span>
-              Production intensity peaks at <strong className="text-indigo-900 dark:text-white font-bold">{formatNumber(maxProjDemand)} m³</strong> on <strong className="text-indigo-900 dark:text-white font-bold">Day {peakProjDay}</strong> of the project. Ensure mixing machinery is serviced and operational staff schedules are aligned for high-throughput batching around this phase.
-            </div>
-          </CardContent>
-        </Card>
+      {/* Project Progress vs Demand Card (Full width) */}
+      <Card>
+        <CardHeader className="px-4 sm:px-6 pb-2">
+          <CardTitle className="text-sm sm:text-base">Project Progress vs Demand</CardTitle>
+        </CardHeader>
+        <CardContent className="px-2 sm:px-4 pb-6">
+          <div className="h-64 sm:h-80 md:h-[360px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data.charts.project_progress_vs_demand} margin={{ bottom: 15, left: 0, right: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="day_in_project" tick={{ fontSize: 10 }} minTickGap={15}>
+                  <Label value="Day of Project" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
+                </XAxis>
+                <YAxis tick={{ fontSize: 10 }} width={52}>
+                  <Label value="Volume (m³)" angle={-90} position="insideLeft" style={{ textAnchor: "middle", fontSize: 11 }} />
+                </YAxis>
+                <Tooltip labelFormatter={(label) => `Project Day: ${label}`} cursor={{ fill: 'transparent' }} />
+                <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
+                <Bar name="Demand Volume (m³)" dataKey="demand" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          {/* Dynamic AI Insight */}
+          <div className="mt-4 p-3.5 bg-indigo-500/5 rounded-xl border border-indigo-500/10 text-xs sm:text-sm text-indigo-950 dark:text-indigo-200">
+            <span className="font-bold text-indigo-800 dark:text-indigo-300 flex items-center gap-1.5 mb-1">
+              <span>📈</span> Project Timeline Insight
+            </span>
+            Production intensity peaks at <strong className="text-indigo-900 dark:text-white font-bold">{formatNumber(maxProjDemand)} m³</strong> on <strong className="text-indigo-900 dark:text-white font-bold">Day {peakProjDay}</strong> of the project. Ensure mixing machinery is serviced and operational staff schedules are aligned for high-throughput batching around this phase.
+          </div>
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader className="px-4 sm:px-6 pb-2">
-            <CardTitle className="text-sm sm:text-base">Carbon Output Metrics</CardTitle>
-          </CardHeader>
-          <CardContent className="px-2 sm:px-4 pb-6">
-            <div className="h-56 sm:h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data.charts.carbon_trend} margin={{ bottom: 15, left: 0, right: 8 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={v => v?.slice(5)} minTickGap={20}>
-                    <Label value="Date" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
-                  </XAxis>
-                  <YAxis tick={{ fontSize: 10 }} width={55}>
-                    <Label value="Emission (kgCO₂)" angle={-90} position="insideLeft" style={{ textAnchor: "middle", fontSize: 11 }} />
-                  </YAxis>
-                  <Tooltip />
-                  <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
-                  <Area type="monotone" stackId="1" name="Manufacturing (Cement)" dataKey="cement_emission_kgco2" fill="#0ea5e9" stroke="#0284c7" />
-                  <Area type="monotone" stackId="1" name="Batching Operations" dataKey="batching_emission_kgco2" fill="#8b5cf6" stroke="#7c3aed" />
-                  <Area type="monotone" stackId="1" name="Vehicle Transport" dataKey="transport_emission_kgco2" fill="#f59e0b" stroke="#d97706" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-            {/* Dynamic AI Insight */}
-            <div className="mt-4 p-3.5 bg-emerald-500/5 rounded-xl border border-emerald-500/10 text-xs sm:text-sm text-emerald-950 dark:text-emerald-200">
-              <span className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 mb-1">
-                <span>🌱</span> Sustainability Recommendation
-              </span>
-              Total footprint over this horizon is <strong className="text-emerald-900 dark:text-white font-bold">{formatNumber(totalCo2)} kgCO₂</strong>. Core material manufacturing (cement) accounts for <strong className="text-emerald-900 dark:text-white font-bold">{mfgPct}%</strong> of total footprint. Switching to fly ash (PPC) or limestone (LC3) can reduce total emissions significantly.
-            </div>
-          </CardContent>
-        </Card>
+      {/* Carbon Output Metrics Card (Full width) */}
+      <Card>
+        <CardHeader className="px-4 sm:px-6 pb-2">
+          <CardTitle className="text-sm sm:text-base">Carbon Output Metrics</CardTitle>
+        </CardHeader>
+        <CardContent className="px-2 sm:px-4 pb-6">
+          <div className="h-64 sm:h-80 md:h-[360px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data.charts.carbon_trend} margin={{ bottom: 15, left: 0, right: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={v => v?.slice(5)} minTickGap={20}>
+                  <Label value="Date" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
+                </XAxis>
+                <YAxis tick={{ fontSize: 10 }} width={55}>
+                  <Label value="Emission (kgCO₂)" angle={-90} position="insideLeft" style={{ textAnchor: "middle", fontSize: 11 }} />
+                </YAxis>
+                <Tooltip />
+                <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
+                <Area type="monotone" stackId="1" name="Manufacturing (Cement)" dataKey="cement_emission_kgco2" fill="#0ea5e9" stroke="#0284c7" />
+                <Area type="monotone" stackId="1" name="Batching Operations" dataKey="batching_emission_kgco2" fill="#8b5cf6" stroke="#7c3aed" />
+                <Area type="monotone" stackId="1" name="Vehicle Transport" dataKey="transport_emission_kgco2" fill="#f59e0b" stroke="#d97706" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+          {/* Dynamic AI Insight */}
+          <div className="mt-4 p-3.5 bg-emerald-500/5 rounded-xl border border-emerald-500/10 text-xs sm:text-sm text-emerald-950 dark:text-emerald-200">
+            <span className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 mb-1">
+              <span>🌱</span> Sustainability Recommendation
+            </span>
+            Total footprint over this horizon is <strong className="text-emerald-900 dark:text-white font-bold">{formatNumber(totalCo2)} kgCO₂</strong>. Core material manufacturing (cement) accounts for <strong className="text-emerald-900 dark:text-white font-bold">{mfgPct}%</strong> of total footprint. Switching to fly ash (PPC) or limestone (LC3) can reduce total emissions significantly.
+          </div>
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader className="px-4 sm:px-6 pb-2">
-            <CardTitle className="text-sm sm:text-base">Material Pollution Source</CardTitle>
-          </CardHeader>
-          <CardContent className="px-2 sm:px-4 pb-6 flex flex-col justify-between h-[calc(100%-48px)]">
-            <div className="h-40 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pollutionData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={35}
-                    outerRadius={55}
-                    minAngle={15}
-                    label={false}
-                  >
-                    {pollutionData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => [`${value} kgCO₂/m³`, 'Footprint Intensity']} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            {/* Legend & AI Insight */}
-            <div className="w-full flex flex-col space-y-2 mt-2">
-              <div className="flex flex-col space-y-1 text-[10px] sm:text-xs">
-                {pollutionData.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between border-b border-border/40 pb-0.5 last:border-0 last:pb-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className={`w-2.5 h-2.5 rounded-full ${item.color} shrink-0`}></span>
-                      <span className="font-semibold text-muted-foreground truncate max-w-[130px]">{item.name}</span>
-                    </div>
-                    <span className="font-bold text-foreground">{item.percent.toFixed(1)}%</span>
+      {/* Material Pollution Source Card (Full width, side-by-side on desktop) */}
+      <Card>
+        <CardHeader className="px-4 sm:px-6 pb-2">
+          <CardTitle className="text-sm sm:text-base">Material Pollution Source Analysis</CardTitle>
+        </CardHeader>
+        <CardContent className="min-h-80 flex flex-col md:flex-row items-center justify-between gap-6 py-6 px-4">
+          {/* Pie Chart container */}
+          <div className="w-full md:w-1/2 h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pollutionData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={80}
+                  minAngle={15}
+                  label={false}
+                >
+                  {pollutionData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => [`${value} kgCO₂/m³`, 'Footprint Intensity']} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          
+          {/* Legend and AI Insight breakdown */}
+          <div className="w-full md:w-1/2 flex flex-col justify-center space-y-4 px-2">
+            <p className="text-xs text-muted-foreground pb-2 border-b border-border">Breakdown of the carbon footprint contributions of the mix design elements (Cement, Coarse 10mm, and Coarse 20mm aggregates).</p>
+            <div className="flex flex-col space-y-2 text-xs sm:text-sm">
+              {pollutionData.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between border-b border-border/50 pb-2 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-2.5">
+                    <span className={`w-3.5 h-3.5 rounded-full ${item.color} shrink-0`}></span>
+                    <span className="font-semibold text-foreground">{item.name}</span>
                   </div>
-                ))}
-              </div>
-              <div className="mt-2 p-2.5 bg-emerald-500/5 rounded-lg border border-emerald-500/10 text-[9px] sm:text-[10px] text-emerald-950 dark:text-emerald-200 leading-tight">
-                <strong>AI Insight:</strong> Cement represents <strong className="font-bold">{pollutionData[0].percent.toFixed(0)}%</strong> of raw mix emissions. Aggregate logistics (10mm & 20mm) accounts for under <strong className="font-bold">6%</strong>. Swapping OPC cement yields the highest sustainability return.
-              </div>
+                  <span className="font-bold text-foreground">{item.percent.toFixed(1)}%</span>
+                </div>
+              ))}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="mt-2 p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10 text-xs sm:text-sm text-emerald-950 dark:text-emerald-200">
+              <strong>AI Insight:</strong> Cement represents <strong className="font-bold">{pollutionData[0].percent.toFixed(0)}%</strong> of raw mix emissions. Aggregate logistics (10mm & 20mm) accounts for under <strong className="font-bold">6%</strong>. Swapping OPC cement yields the highest sustainability return.
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <DashboardChatbot dashboardData={data} />
     </div>
