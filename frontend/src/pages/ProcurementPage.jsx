@@ -124,6 +124,21 @@ const ProcurementPage = () => {
     }
   };
 
+  const getResolvedLocationName = async (lat, lon, name) => {
+    const isCoordinateLike = !name || name.includes("Prediction Trace") || name === "Active Site" || /^-?\d+\.\d+,\s*-?\d+\.\d+$/.test(name);
+    if (isCoordinateLike && lat && lon) {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`);
+        const data = await res.json();
+        const fetchedName = data?.address?.city || data?.address?.town || data?.address?.village || data?.address?.county || data?.display_name?.split(",")[0];
+        if (fetchedName) return fetchedName;
+      } catch (e) {
+        console.warn("Failed to reverse geocode", e);
+      }
+    }
+    return name || `${Number(lat).toFixed(4)}, ${Number(lon).toFixed(4)}`;
+  };
+
   const handleCreateOrder = async () => {
     if (!data) {
       alert("Please simulate the burn-down plan first before dispatching orders.");
@@ -140,13 +155,15 @@ const ProcurementPage = () => {
     try {
       setIsDispatching(true);
 
+      const resolvedName = await getResolvedLocationName(activeLocation.lat, activeLocation.lon, activeLocation.name);
+
       // Create an array of daily orders where requirement > 0
       const ordersToCreate = data.recommendation
         .filter(day => day.cement_required_tonnes > 0)
         .map(day => ({
           cementType: cementType,
           quantity: Math.ceil(day.cement_required_tonnes),
-          destination: `${activeLocation.name} (${day.date})`
+          destination: `${resolvedName} (${day.date})`
         }));
 
       if (ordersToCreate.length === 0) {
