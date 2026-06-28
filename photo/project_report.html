@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart-RMC: Presentation Guide & Technical Report</title>
+  <title>Smart-RMC: Simple Presentation Guide & Story Board</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
@@ -35,11 +35,10 @@
       padding: 0 0 100px 0;
     }
 
-    /* Simple Header */
     header {
       background-color: var(--accent-bg);
       border-bottom: 1px solid var(--border);
-      padding: 50px 20px;
+      padding: 40px 20px;
       text-align: center;
     }
 
@@ -57,100 +56,97 @@
 
     header h1 {
       font-family: 'Outfit', sans-serif;
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       color: #0f172a;
       margin-bottom: 10px;
     }
 
     header p {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       color: var(--text-muted);
       max-w: 750px;
       margin: 0 auto;
     }
 
     .container {
-      max-width: 960px;
+      max-width: 900px;
       margin: 40px auto 0;
       padding: 0 20px;
     }
 
     section {
-      margin-bottom: 50px;
+      margin-bottom: 45px;
     }
 
     h2 {
       font-family: 'Outfit', sans-serif;
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       color: #0f172a;
       border-bottom: 2px solid #e2e8f0;
-      padding-bottom: 8px;
-      margin-bottom: 20px;
+      padding-bottom: 6px;
+      margin-bottom: 18px;
     }
 
     h3 {
       font-family: 'Outfit', sans-serif;
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       color: #0f172a;
-      margin: 25px 0 10px 0;
+      margin: 22px 0 8px 0;
     }
 
     p {
-      margin-bottom: 15px;
-      font-size: 0.98rem;
+      margin-bottom: 12px;
+      font-size: 0.96rem;
     }
 
-    /* Lists */
     ul, ol {
-      margin-bottom: 20px;
-      padding-left: 25px;
+      margin-bottom: 18px;
+      padding-left: 22px;
     }
 
     li {
-      margin-bottom: 8px;
-      font-size: 0.98rem;
+      margin-bottom: 6px;
+      font-size: 0.96rem;
     }
 
-    /* Highlight box style */
     .story-box {
       background-color: var(--accent-bg);
       border: 1px solid var(--border);
       border-left: 4px solid var(--primary);
       border-radius: 6px;
-      padding: 20px;
-      margin: 20px 0;
+      padding: 18px;
+      margin: 18px 0;
     }
 
     .story-title {
       font-weight: 700;
       color: #0f172a;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .math-box {
       background-color: #f1f5f9;
       border: 1px solid #cbd5e1;
-      padding: 15px;
+      padding: 12px;
       border-radius: 6px;
       font-family: 'Fira Code', monospace;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       color: #0f172a;
-      margin: 15px 0;
+      margin: 12px 0;
       overflow-x: auto;
     }
 
     .formula-desc {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--text-muted);
-      margin-top: 5px;
+      margin-top: 4px;
     }
 
-    /* Glossary Row */
     .glossary-row {
       display: flex;
       flex-direction: column;
       border-bottom: 1px solid var(--border);
-      padding: 12px 0;
+      padding: 10px 0;
     }
 
     .glossary-row:last-child {
@@ -175,20 +171,19 @@
 
     .glossary-desc {
       color: var(--text-muted);
-      font-size: 0.95rem;
+      font-size: 0.92rem;
     }
 
-    /* Table styles */
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 20px 0;
-      font-size: 0.9rem;
+      margin: 18px 0;
+      font-size: 0.88rem;
     }
 
     th, td {
       border: 1px solid var(--border);
-      padding: 12px 15px;
+      padding: 10px 12px;
       text-align: left;
     }
 
@@ -200,17 +195,16 @@
     code {
       font-family: 'Fira Code', monospace;
       background-color: #f1f5f9;
-      padding: 2px 4px;
+      padding: 1px 3px;
       border-radius: 4px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
     }
 
-    /* Badge tags */
     .role-badge {
       display: inline-block;
-      padding: 2px 8px;
+      padding: 2px 6px;
       border-radius: 4px;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
       text-transform: uppercase;
     }
@@ -222,168 +216,133 @@
 <body>
 
   <header>
-    <div class="header-tag">Final Presentation Guide</div>
+    <div class="header-tag">Presentation Storyboard</div>
     <h1>The Story of Smart-RMC</h1>
-    <p>How an AI-powered system optimizes Ready-Mix Concrete operations, avoids raw material waste, and reduces carbon footprint in the real world.</p>
+    <p>A simple guide explaining how the Manager in the office uses AI predictions to purchase cement and prevent silo depletion at the batching plant.</p>
   </header>
 
   <div class="container">
 
-    <!-- SECTION 1: THE STORY OF THE SYSTEM -->
+    <!-- SECTION 1: THE STORY -->
     <section>
-      <h2>1. The Story of Our System (How It Works)</h2>
+      <h2>1. The Presentation Story (How the Roles Interact)</h2>
       <p>
-        To explain this project to your friends and the examiner, let's look at it like a story of a real-world concrete batching plant. 
+        Explain this flow to your friends and the examiner. The system is split logically between office planning and physical plant loading:
       </p>
 
       <div class="story-box">
-        <div class="story-title">Meet Our Two Main Characters:</div>
-        <ul>
-          <li><strong>The Manager:</strong> <span class="role-badge role-manager">Manager Role</span> Works in the office. They oversee budgets, track inventory in the storage silos, analyze future sales demand, and plan procurement.</li>
-          <li><strong>The Operator:</strong> <span class="role-badge role-operator">Operator Role</span> Works on the mixing plant floor. They load the physical concrete trucks, track live deliveries, and make sure concrete reaches construction sites before it hardens.</li>
-        </ul>
+        <div class="story-title">Step 1: The Manager in the Central Office</div>
+        <p>
+          The <strong>Manager</strong> <span class="role-badge role-manager">Manager Role</span> is responsible for inventory planning and forecasting. They do not drive concrete trucks or pour cement. 
+        </p>
+        <p>
+          Instead, they sit in the office and run our <strong>AI demand forecast model</strong>. Based on project timelines and local weather inputs, the AI predicts how many cubic meters (m³) of Ready-Mix Concrete (RMC) the plant needs to supply over the coming week.
+        </p>
+        <p>
+          Based on this forecasted RMC demand, the system calculates the exact quantity of cement (in tonnes) required for the future RMC concrete mixes.
+        </p>
       </div>
 
-      <h3>The Big Industrial Problem</h3>
-      <p>
-        Concrete is highly perishable. Once mixed with water, it must be poured within 90 to 120 minutes or it hardens inside the truck, destroying the mixer drum. Therefore, concrete cannot be stored in a warehouse; it must be manufactured <strong>on-demand</strong>. 
-      </p>
-      <p>
-        If the plant mixes too much concrete, it goes to waste. If they run out of raw materials (like cement) inside their storage silos, the entire mixing process halts, stopping multiple active construction sites.
-      </p>
+      <div class="story-box">
+        <div class="story-title">Step 2: Checking the Silo & Warning of Shortfalls</div>
+        <p>
+          The Manager inputs their current silo level (e.g. 50 tonnes of cement in storage). The system runs a <strong>silo burn-down simulation</strong>. 
+        </p>
+        <p>
+          It subtracts the cement required for future concrete batches day-by-day. If the inventory is projected to drop below zero, the system raises an <strong>actionable warning alert</strong> indicating a cement shortfall.
+        </p>
+      </div>
 
-      <h3>Step-by-Step Flow: A Day in the Life of Smart-RMC</h3>
-      <ol>
-        <li>
-          <strong>Uploading Historical Data:</strong> The Manager logs into the platform and uploads a CSV file containing historical concrete production logs (dates, weather parameters, concrete recipes).
-        </li>
-        <li>
-          <strong>Predicting the Future:</strong> The NodeJS backend sends this data to our Python FastAPI Machine Learning server. The AI looks at historical trends and local weather forecasts to predict the exact concrete volume (m³) required for the next 7 days.
-        </li>
-        <li>
-          <strong>Simulating the Silo (Burn-Down):</strong> The Manager enters the current silo stock (e.g., "I have 100 tonnes of cement in my silo"). The system runs a daily burn-down simulation: it calculates how much cement is needed to make the predicted concrete volume, and subtracts it from the silo. If it goes below 0, it warns of a <strong>Shortfall</strong>.
-        </li>
-        <li>
-          <strong>Dispatching Orders:</strong> To prevent a shortfall, the Manager clicks "Dispatch Orders". The system creates daily delivery logs which are immediately sent to the Operator.
-        </li>
-        <li>
-          <strong>Operator Execution:</strong> The Operator logs in and sees the active dispatches. As trucks leave, they mark them as <code>IN_TRANSIT</code>. If a driver hits heavy traffic or a truck breaks down, they trigger an <code>EMERGENCY</code> alert. Once poured, they mark it as <code>DELIVERED</code>.
-        </li>
-        <li>
-          <strong>Eco-Footprint Tracking:</strong> The Manager visits the carbon panel to see the total carbon emissions of the dispatch, and compares how swapping OPC cement for green blends (like fly-ash or limestone LC3) can reduce environmental footprint.
-        </li>
-      </ol>
+      <div class="story-box">
+        <div class="story-title">Step 3: Ordering Cement and Refilling the Silo</div>
+        <p>
+          To prevent running out of cement, the Manager clicks "Dispatch Orders" only on the days where a shortfall is flagged. This triggers a <strong>cement refill order</strong> (a cement load purchase request) for that day's deficit.
+        </p>
+        <p>
+          This order goes directly to the <strong>Operator</strong> at the mixing plant.
+        </p>
+      </div>
+
+      <div class="story-box">
+        <div class="story-title">Step 4: The Operator at the Plant Floor</div>
+        <p>
+          The <strong>Operator</strong> <span class="role-badge role-operator">Operator Role</span> is at the batching plant. They monitor the inbound cement supply orders.
+        </p>
+        <p>
+          When the external cement delivery truck arrives at the plant, the Operator unloads the dry cement into the storage silo and updates the status to <code>DELIVERED</code>. The silo is now successfully replenished, and the plant is fully stocked to mix the future concrete packages!
+        </p>
+      </div>
     </section>
 
     <!-- SECTION 2: PAGE-BY-PAGE WEBSITE WORKING -->
     <section>
-      <h2>2. Page-by-Page Website Working</h2>
+      <h2>2. Website Features & Page Walkthrough</h2>
       
-      <h3>1. Login & User Profiles (Authentication)</h3>
+      <h3>1. Dashboard (Command Center)</h3>
       <p>
-        Users log in with their email and password. The system uses JSON Web Tokens (JWT) for secure authentication. Based on the user's role:
+        Provides the executive summary. Calculates KPIs (predicted demand, cement requirements, next-day emissions) and plots them. Stacks three large charts vertically for maximum clarity:
       </p>
       <ul>
-        <li><strong>Managers</strong> are redirected to the Executive Command Center.</li>
-        <li><strong>Operators</strong> are redirected to the Operator Logistics Terminal.</li>
+        <li><strong>Procurement vs Demand:</strong> A dual-bar chart showing forecasted RMC concrete volume and the corresponding cement needed.</li>
+        <li><strong>Project Progress vs Demand:</strong> A lifecycle bar chart showing demand starting high in the early stages of a project and falling as the concrete structure is completed.</li>
+        <li><strong>Carbon Output Metrics:</strong> A stacked area chart showing emissions from cement manufacturing, batching power, and truck travel.</li>
+        <li><strong>Material Pollution Source:</strong> A donut pie chart showing that cement is the main driver of pollution, while aggregates contribute a minor fraction.</li>
       </ul>
 
-      <h3>2. Executive Command Center (Dashboard)</h3>
+      <h3>2. Cement Procurement Planning</h3>
       <p>
-        The main control panel. It calls the backend <code>GET /api/dashboard</code> endpoint to show:
-      </p>
-      <ul>
-        <li><strong>KPI Cards:</strong> Next-day demand, cement needs, emissions, and sustainability score.</li>
-        <li><strong>Smart Alerts:</strong> Highlights inventory warnings and critical alerts.</li>
-        <li><strong>Procurement vs Demand Chart:</strong> Shows predicted RMC demand and cement needed day-by-day in a side-by-side bar chart.</li>
-        <li><strong>Timeline Progress Chart:</strong> Shows how concrete demand naturally starts high in the early stages of a project and decreases as the project finishes.</li>
-        <li><strong>Material Pollution Chart:</strong> A donut pie chart showing exactly which concrete ingredient increases pollution the most.</li>
-      </ul>
-
-      <h3>3. Cement Procurement Planning</h3>
-      <p>
-        Helps managers plan bulk purchases. The manager inputs the current silo cement stock (in tonnes) and clicks "Simulate Burn-Down". It displays:
-      </p>
-      <ul>
-        <li>The remaining cement inventory in the silo day-by-day.</li>
-        <li>The exact shortfall day, showing when they will run out of cement.</li>
-        <li>A button to dispatch these procurement orders directly to the Operator.</li>
-      </ul>
-
-      <h3>4. Predictive Modeling Station (Forecast Page)</h3>
-      <p>
-        This page lets you tune the ML model parameters. You can change variables like aggregate ratios, water-binder ratio, and slump, and see how the AI's predicted demand curve updates. It also displays live weather information fetched from the Open-Meteo API.
+        Where the Manager performs the inventory burn-down calculations. Shows the day-by-day depletion curve of the cement silo and has a button to send purchase refill orders to the Operator when a shortfall occurs.
       </p>
 
-      <h3>5. Carbon Supply Chain Simulation (Carbon Page)</h3>
+      <h3>3. Forecast Modeling Station</h3>
       <p>
-        Dedicated to environmental tracking. It shows three daily carbon emission sources side-by-side (Cement manufacturing, batching energy, and transportation transit). It also offers a detailed breakdown panel showing the footprint ratio by material.
+        Allows the Manager to input mix recipe criteria (like sand fractions, water-binder ratios, and slump ratings) and preview how changing these concrete variables shifts the predicted RMC demand curve.
       </p>
 
-      <h3>6. Operator Logistics Terminal</h3>
+      <h3>4. Carbon Supply Chain Simulation</h3>
       <p>
-        This is what the operator uses on the plant floor. It shows active dispatches. For each dispatch, the Operator can click buttons to update the status in real-time (In Transit, Delivered, Cancelled, Emergency).
+        Allows the Manager to evaluate how switching to green cement blends (like LC3, fly-ash, or slag cement) reduces total emissions and improves the plant's overall sustainability rating.
       </p>
     </section>
 
-    <!-- SECTION 3: THE MACHINE LEARNING IN SIMPLE WORDS -->
+    <!-- SECTION 3: MACHINE LEARNING MODELS IN PLAIN ENGLISH -->
     <section>
-      <h2>3. Machine Learning Models & Algorithms (Simple Explanations)</h2>
-      <p>
-        Our system uses a Python FastAPI service as its "brain." It compares and uses four different algorithms to predict concrete demand:
-      </p>
-
-      <h3>1. XGBoost Regressor</h3>
-      <p>
-        <strong>Simple explanation:</strong> Imagine a team of students solving a math test. The first student takes the test and makes some mistakes. The second student looks at those mistakes and tries to fix them. The third student fixes the mistakes of the second. XGBoost does this with decision trees. It builds trees one after another, where each new tree focus on fixing the errors (residuals) of the previous tree. It is highly accurate for concrete demand.
-      </p>
-
-      <h3>2. RandomForest Regressor</h3>
-      <p>
-        <strong>Simple explanation:</strong> Imagine asking 100 different concrete experts to guess tomorrow's concrete demand, and then taking the average of their guesses. Since some experts might over-guess and others under-guess, the average guess will be highly stable. RandomForest does this by training many independent decision trees on different parts of the data, and averaging their results to prevent errors (overfitting).
-      </p>
-
-      <h3>3. LSTM Neural Network (Long Short-Term Memory)</h3>
-      <p>
-        <strong>Simple explanation:</strong> Unlike standard algorithms, LSTM has "memory." It looks at the sequence of concrete demand over the last 14 days and remembers weekly patterns (like demand dropping on Sundays, or spiking every Monday). It is a deep-learning sequence model.
-      </p>
-
-      <h3>4. Linear Regression</h3>
-      <p>
-        <strong>Simple explanation:</strong> A baseline model that fits a straight line through the data. It is used as a simple yardstick to prove that our complex models (XGBoost, LSTM) are actually performing better.
-      </p>
+      <h2>3. Machine Learning Models & Algorithms</h2>
+      <p>The Python FastAPI server runs four main forecasting algorithms:</p>
+      
+      <ul>
+        <li><strong>XGBoost Regressor:</strong> A tree model that builds decision trees sequentially. Each new tree corrects the prediction mistakes made by the previous trees. It is highly accurate for complex non-linear cement demand values.</li>
+        <li><strong>RandomForest Regressor:</strong> An ensemble model that trains multiple decision trees independently and averages their predictions to prevent errors (overfitting).</li>
+        <li><strong>LSTM (Long Short-Term Memory):</strong> A sequence-based neural network model with memory cells that learns historical time-series patterns (e.g. week-on-week demand curves).</li>
+        <li><strong>Linear Regression:</strong> A basic statistical model used as a simple baseline to evaluate the complexity benefits of XGBoost and LSTM.</li>
+      </ul>
     </section>
 
     <!-- SECTION 4: MATHEMATICAL MODELS & FORMULAS -->
     <section>
-      <h2>4. Mathematical Models & Formulas (Presentation Ready)</h2>
-      <p>Here are the mathematical models implemented in the system, written with simple equations:</p>
+      <h2>4. Mathematical Models & Formulas</h2>
 
       <div class="math-box">
-        <div class="math-title">1. Hybrid Ensembling Prediction</div>
+        <div class="math-title">1. Hybrid Model Blend</div>
         ŷ_hybrid = (0.65 * ŷ_XGB) + (0.35 * ŷ_RF)
-        <div class="formula-desc">We combine the predictions of XGBoost and RandomForest. The weights (0.65 and 0.35) were selected during training to give the lowest prediction error.</div>
+        <div class="formula-desc">Combines XGBoost and RandomForest predictions using validation-optimized weights (65% / 35%).</div>
       </div>
 
       <div class="math-box">
-        <div class="math-title">2. Weather Adjustment Multiplier</div>
+        <div class="math-title">2. Weather-Adjusted Demand Factor</div>
         WF = 1.0 - rain_factor - temperature_extreme_factor<br>
         ŷ_adjusted = ŷ_hybrid * WF
-        <div class="formula-desc">If the weather API warns of heavy rain or freezing temperatures, the weather factor (WF) decreases, which automatically scales down the predicted concrete demand.</div>
+        <div class="formula-desc">Rain and extreme cold/heat limits the capacity to pour concrete on site. The Open-Meteo weather API helps adjust the RMC demand downward if severe rain is forecast.</div>
       </div>
 
       <div class="math-box">
-        <div class="math-title">3. Construction Scheduling Multipliers</div>
-        ŷ_final(t) = ŷ_adjusted(t) * F_weekend(t) * F_variance(t) * F_pour(t)
-        <div class="formula-desc">
-          - F_weekend = 0.55 if Saturday or Sunday, else 1.0 (sites shut down on weekends).<br>
-          - F_variance = Deterministic fluctuation based on day/month cycles (+/- 18%).<br>
-          - F_pour = 1.45 if day % 5 == 0, else 1.0 (large foundation pour day spike).
-        </div>
+        <div class="math-title">3. Concrete Lifecycle Decay Equation</div>
+        Demand(d) = Raw_Demand * (1.25 - ((d - d_min) / (d_max - d_min)) * 1.05)
+        <div class="formula-desc">Scales RMC demand to start high (1.25x) during foundation works and drop linearly to a baseline (0.20x) as the project concludes.</div>
       </div>
 
       <div class="math-box">
-        <div class="math-title">4. Supply Chain Carbon Footprint</div>
+        <div class="math-title">4. Supply Chain Carbon Emissions Breakdown</div>
         Total_Emissions(t) = E_cement(t) + E_batching(t) + E_transport(t)
         <div class="formula-desc">
           - E_cement = cement_kg * blend_factor (OPC = 0.92, PPC = 0.72, PSC = 0.65, LC3 = 0.55).<br>
@@ -391,25 +350,11 @@
           - E_transport = (demand / truck_capacity) * transport_time * 2.5 + demand * 48.
         </div>
       </div>
-
-      <div class="math-box">
-        <div class="math-title">5. Dynamic Sustainability Rank Score</div>
-        Emission_Intensity = Total_Emissions / Total_Demand<br>
-        Sustainability_Score = Clamp(0, 100, 100 - (Emission_Intensity - 150) * 0.286)
-        <div class="formula-desc">Normalizes the emission intensity rating. Clean fly-ash/limestone mixes score close to 100, while pure Portland cement mixes score close to 0.</div>
-      </div>
-
-      <div class="math-box">
-        <div class="math-title">6. Project Lifecycle Progress Trend</div>
-        Demand(d) = Raw_Demand * (1.25 - ((d - d_min) / (d_max - d_min)) * 1.05)
-        <div class="formula-desc">Forces concrete demand to start high (1.25x) during excavation/foundation pours, and decline linearly as the project approaches completion (0.20x).</div>
-      </div>
     </section>
 
     <!-- SECTION 5: CONCRETE MIX DESIGN GLOSSARY -->
     <section>
       <h2>5. Glossary of Concrete Mix Terms (Single-Line Explanations)</h2>
-      <p>Examiners love to ask what these database columns mean. Explain them like this:</p>
       
       <div class="glossary-row">
         <div class="glossary-name">cement_kg_m3</div>
@@ -440,38 +385,48 @@
         <div class="glossary-name">slump_mm</div>
         <div class="glossary-desc">A physical height test measuring how wet/fluid concrete is; higher slump means it flows easily, lower slump means it is stiff.</div>
       </div>
-
-      <div class="glossary-row">
-        <div class="glossary-name">transport_time_min</div>
-        <div class="glossary-desc">Average travel time for a truck from the plant to the job site; must be kept low to prevent concrete from hardening in the truck.</div>
-      </div>
-
-      <div class="glossary-row">
-        <div class="glossary-name">batching_time_min</div>
-        <div class="glossary-desc">The time in minutes it takes the batch plant to measure, dump, and mix raw materials into a mixer truck.</div>
-      </div>
     </section>
 
-    <!-- SECTION 6: REAL WORLD IMPLEMENTATION -->
+    <!-- SECTION 6: THREE-PERSON PRESENTATION SCRIPT -->
     <section>
-      <h2>6. Real-World Implementation & Value</h2>
-      
-      <h3>How would you implement this in a real concrete plant?</h3>
+      <h2>6. Three-Person Presentation Script (Story Format)</h2>
       <p>
-        To deploy Smart-RMC in a real industrial facility:
+        Use this script to present your project tomorrow. Each member has a clear role that connects to form a unified story.
       </p>
-      <ul>
-        <li><strong>PLC Integration:</strong> Connect the NodeJS backend to the plant's PLC batching computers. This automates the reading of actual weights (cement, aggregates, water) directly, without manual CSV uploads.</li>
-        <li><strong>Silo Sensors:</strong> Install ultrasonic level indicators inside the physical storage silos. These sensors automatically feed silo levels to our Procurement panel in real-time.</li>
-        <li><strong>Truck GPS tracking:</strong> Integrate the Operator page with GPS transponders installed on delivery trucks to automatically transition orders to <code>IN_TRANSIT</code> and geolocate delivery timestamps.</li>
-      </ul>
 
-      <h3>How does this solve real-world problems?</h3>
-      <ul>
-        <li><strong>Halts cement waste:</strong> Over-mixing concrete because of poor demand planning leads to discarded piles. AI forecasting makes matching production to demand precise.</li>
-        <li><strong>Prevents project delays:</strong> Running out of cement in the middle of a major bridge or building foundation pour is a disaster. Automated silo alerts solve this.</li>
-        <li><strong>Promotes green concrete:</strong> The Carbon panel helps plants calculate environmental footprints and choose low-carbon alternatives (LC3 / PPC), making construction eco-friendly.</li>
-      </ul>
+      <div class="story-box" style="border-left-color: var(--secondary);">
+        <div class="story-title">Speaker Roles Overview:</div>
+        <ul>
+          <li><strong>Speaker 1 (The Planner):</strong> Introduces the project, the user roles, the core business problem, and walks through the Manager's Dashboard.</li>
+          <li><strong>Speaker 2 (The Data Scientist):</strong> Explains the backend machine learning models (XGBoost, LSTM), formulas, and concrete terminology.</li>
+          <li><strong>Speaker 3 (The Operations Engineer):</strong> Walks through the Operator logistics loop, geocoding, carbon footprinting, and real-world deployment.</li>
+        </ul>
+      </div>
+
+      <!-- SPEAKER 1 START -->
+      <div class="speaker-card">
+        <div class="speaker-label label-spk1">🗣️ Speaker 1: The Planner (Business & Setup)</div>
+        <p><strong>[Intro & Hook]:</strong> "Good morning esteemed examiners. Today, my team and I want to tell you a story. It's the story of a Ready-Mix Concrete batching plant, and how we solved its biggest nightmare: <em>inventory waste and silo stockouts</em>."</p>
+        <p><strong>[Show Dashboard / Command Center]:</strong> "Imagine a concrete batching plant manager. Their job is office-based planning. Concrete is highly perishable—it hardens in 2 hours. If they mix too much concrete, it goes to waste. If they run out of cement in their silos, the mixing machinery shuts down, stopping major construction projects."</p>
+        <p><strong>[Walkthrough Dashboard]:</strong> "Here is our Executive Command Center. The Manager uses this panel to bind locations, track next-day cement demands, and monitor warnings. Our dashboard provides three full-width visual graphs showing procurement, project progress curves, and carbon footprints. I will now hand over to Speaker 2 to explain the AI brains behind these predictions."</p>
+      </div>
+
+      <!-- SPEAKER 2 START -->
+      <div class="speaker-card">
+        <div class="speaker-label label-spk2">🗣️ Speaker 2: The Data Scientist (AI & Math)</div>
+        <p><strong>[ML Explanation]:</strong> "Thank you, Speaker 1. To give the Manager precise predictions, our backend links to a Python FastAPI engine. We train and evaluate four machine learning models: XGBoost, RandomForest, LSTM for sequential patterns, and a baseline Linear Regression."</p>
+        <p><strong>[Math Formulas]:</strong> "As shown in our formulas, the system blends XGBoost and RandomForest predictions using a 65% to 35% ensembled weight. We adjust the demand based on live weather data from the Open-Meteo API. If it rains, the system scales down concrete orders. We also apply lifecycle project scaling: concrete demand starts high (1.25x) during excavation and drops linearly to a low baseline as the project concludes."</p>
+        <p><strong>[Mix Glossary]:</strong> "We use concrete mix criteria to make these predictions: <code>cement_kg_m3</code> is the binder glue, <code>aggregate_20mm_pct</code> forms the bulk skeleton, and <code>water_binder_ratio</code> determines the final compressive strength. Now, Speaker 3 will guide you through the operational logistics and carbon auditing."</p>
+      </div>
+
+      <!-- SPEAKER 3 START -->
+      <div class="speaker-card">
+        <div class="speaker-label label-spk3">🗣️ Speaker 3: The Operations Engineer (Logistics & Carbon)</div>
+        <p><strong>[Procurement and Operator Flow]:</strong> "Thank you, Speaker 2. Let's look at the plant operations. The Manager runs a silo burn-down simulation. When the silo is warning of a future deficit, the Manager triggers a cement refill load order. This order pops up on the Operator's screen at the plant floor."</p>
+        <p><strong>[Operator Actions]:</strong> "When the shipment truck arrives, the Operator unloads the cement into the storage silo and marks it as <code>DELIVERED</code>. This safely updates the inventory. We use Nominatim geocoding to resolve raw lat/lon coordinates into readable town names, eliminating truck dispatch routing errors."</p>
+        <p><strong>[Carbon Analysis & Summary]:</strong> "We also run a three-source carbon audit: measuring cement manufacturing, batching power, and truck transit. The manager can see that cement represents 94% of raw mix emissions, meaning green cement blends yield the highest eco-rating. In a real-world plant, we would connect this platform to ultrasonic silo sensors and PLC mix scales. Thank you, we are now ready for your questions!"</p>
+      </div>
+
     </section>
 
   </div>
