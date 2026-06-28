@@ -319,34 +319,62 @@ const CarbonPage = () => {
               <CardHeader>
                 <CardTitle>Carbon Output Origin Ratio</CardTitle>
               </CardHeader>
-              <CardContent className="h-80 relative">
-                <div className="absolute top-0 right-6 text-xs text-muted-foreground max-w-[150px] text-right">Metrics partitioned between core material synthesis, plant operations, and logistics.</div>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: "Manufacturing (Cement)", value: data.daily.reduce((s, d) => s + d.cement_emission_kgco2, 0) },
-                        { name: "Batching Operations", value: data.daily.reduce((s, d) => s + d.batching_emission_kgco2, 0) },
-                        { name: "Vehicle Transport", value: data.daily.reduce((s, d) => s + d.transport_emission_kgco2, 0) }
-                      ]}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={85}
-                      minAngle={15}
-                      labelLine={true}
-                      label={({ name, value, percent }) => `${name.split(" ")[0]}: ${formatShortKg(value)} kg (${(percent * 100).toFixed(0)}%)`}
-                    >
-                      <Cell fill="#0ea5e9" />
-                      <Cell fill="#8b5cf6" />
-                      <Cell fill="#f59e0b" />
-                    </Pie>
-                    <Tooltip formatter={(value) => [`${formatNumber(value)} kgCO2`, 'Total Generated']} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                    <Legend verticalAlign="bottom" height={36} />
-                  </PieChart>
-                </ResponsiveContainer>
+              <CardContent className="min-h-80 flex flex-col md:flex-row items-center justify-between gap-6 py-6 px-4">
+                {/* Pie Chart container */}
+                <div className="w-full md:w-1/2 h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: "Manufacturing (Cement)", value: data.daily.reduce((s, d) => s + d.cement_emission_kgco2, 0) },
+                          { name: "Batching Operations", value: data.daily.reduce((s, d) => s + d.batching_emission_kgco2, 0) },
+                          { name: "Vehicle Transport", value: data.daily.reduce((s, d) => s + d.transport_emission_kgco2, 0) }
+                        ]}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={80}
+                        minAngle={15}
+                        label={false}
+                      >
+                        <Cell fill="#0ea5e9" />
+                        <Cell fill="#8b5cf6" />
+                        <Cell fill="#f59e0b" />
+                      </Pie>
+                      <Tooltip formatter={(value) => [`${formatNumber(value)} kgCO₂`, 'Total Generated']} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                
+                {/* Beautiful custom legend and absolute value breakdown */}
+                <div className="w-full md:w-1/2 flex flex-col justify-center space-y-4 px-2">
+                  <p className="text-xs text-muted-foreground pb-2 border-b border-border">Metrics partitioned between core material synthesis, plant operations, and logistics.</p>
+                  {(() => {
+                    const mfgVal = data.daily.reduce((s, d) => s + d.cement_emission_kgco2, 0);
+                    const batVal = data.daily.reduce((s, d) => s + d.batching_emission_kgco2, 0);
+                    const trnVal = data.daily.reduce((s, d) => s + d.transport_emission_kgco2, 0);
+                    const totalVal = mfgVal + batVal + trnVal || 1;
+
+                    return [
+                      { label: "Manufacturing (Cement)", value: mfgVal, color: "bg-[#0ea5e9]", percent: (mfgVal / totalVal) * 100 },
+                      { label: "Batching Operations", value: batVal, color: "bg-[#8b5cf6]", percent: (batVal / totalVal) * 100 },
+                      { label: "Vehicle Transport", value: trnVal, color: "bg-[#f59e0b]", percent: (trnVal / totalVal) * 100 }
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between border-b border-border/50 pb-2 last:border-0 last:pb-0">
+                        <div className="flex items-center gap-2.5">
+                          <span className={`w-3.5 h-3.5 rounded-full ${item.color} shrink-0`}></span>
+                          <span className="text-sm font-semibold text-foreground">{item.label}</span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-foreground">{formatNumber(item.value)} kg</p>
+                          <p className="text-xs text-muted-foreground font-semibold">{item.percent.toFixed(1)}%</p>
+                        </div>
+                      </div>
+                    ));
+                  })()}
+                </div>
               </CardContent>
             </Card>
           </div>
