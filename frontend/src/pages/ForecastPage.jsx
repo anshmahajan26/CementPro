@@ -322,7 +322,7 @@ const ForecastPage = () => {
                 {result.stakeholder_note || "Hybrid forecast is ready for planning decisions."}
               </p>
               <p className="text-sm text-muted-foreground">
-                Use final demand column for procurement and dispatch planning. XGBoost and RandomForest lines are shown for transparency.
+                Use final demand column for procurement and dispatch planning.
               </p>
             </CardContent>
           </Card>
@@ -357,25 +357,61 @@ const ForecastPage = () => {
                   <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} label={{ value: "Date", position: "insideBottom", offset: -18, fill: "hsl(var(--muted-foreground))", fontSize: 13 }} />
                   <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} label={{ value: "Demand of Cement (m³)", angle: -90, position: "insideLeft", style: {textAnchor: 'middle'}, offset: -15, fill: "hsl(var(--muted-foreground))", fontSize: 13 }} />
                   <Tooltip contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 20px rgba(0,0,0,0.1)" }} />
-                  <Legend />
                   <Line
                     type="monotone"
                     dataKey="display_prediction"
-                    name="Predicted demand"
+                    name="Forecasted Demand"
                     stroke="url(#colorPredicted)"
                     strokeWidth={3}
                     dot={{ r: 4, fill: "#8b5cf6", strokeWidth: 0 }}
                     activeDot={{ r: 6, strokeWidth: 0 }}
                   />
-                  <Line type="monotone" dataKey="xgboost_predicted_m3" name="XGBoost" stroke="#06b6d4" strokeWidth={2} strokeOpacity={0.6} dot={false} />
-                  <Line type="monotone" dataKey="random_forest_predicted_m3" name="RandomForest" stroke="#f43f5e" strokeWidth={2} strokeOpacity={0.6} dot={false} />
-                  {result.realtime_mode ? (
-                    <Line type="monotone" dataKey="base_predicted_demand_m3" name="Base model" stroke="hsl(var(--accent))" strokeWidth={1.8} strokeDasharray="6 4" />
-                  ) : null}
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
+
+          {/* Historical Actual vs AI Predicted chart */}
+          {result.hist_actual_vs_pred && result.hist_actual_vs_pred.length > 0 ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>AI Prediction vs Historical Actual (Model Fit & Gap)</CardTitle>
+                <CardDescription>
+                  Comparison of the AI model's predictions against actual historical demand records to show model accuracy and gap.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="h-80">
+                <ResponsiveContainer width="100%" height="90%">
+                  <LineChart
+                    data={result.hist_actual_vs_pred}
+                    margin={{ top: 20, right: 30, left: 30, bottom: 25 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} label={{ value: "Historical Date", position: "insideBottom", offset: -18, fill: "hsl(var(--muted-foreground))", fontSize: 13 }} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} label={{ value: "Demand Volume (m³)", angle: -90, position: "insideLeft", style: {textAnchor: 'middle'}, offset: -15, fill: "hsl(var(--muted-foreground))", fontSize: 13 }} />
+                    <Tooltip contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 20px rgba(0,0,0,0.1)" }} />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="actual_demand_m3"
+                      name="Actual Demand"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="predicted_demand_m3"
+                      name="AI Fitted Prediction"
+                      stroke="#8b5cf6"
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          ) : null}
 
 
 

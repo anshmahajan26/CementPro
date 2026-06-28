@@ -705,12 +705,26 @@ def predict_pipeline(days: int, feature_overrides: Optional[Dict[str, Any]] = No
             }
         )
 
+    hist_actual_vs_pred = []
+    if state.raw_df is not None:
+        hist_df = state.raw_df.sort_values("date").tail(20).copy()
+        hist_features = hist_df[state.feature_columns].values
+        hist_preds = _predict_with_best_model(hist_features)
+        
+        for idx in range(len(hist_df)):
+            hist_actual_vs_pred.append({
+                "date": hist_df.iloc[idx]["date"].strftime("%Y-%m-%d"),
+                "actual_demand_m3": float(hist_df.iloc[idx][TARGET_COLUMN]),
+                "predicted_demand_m3": float(round(max(hist_preds[idx], 0.0), 3))
+            })
+
     return {
         "best_model": state.best_model,
         "hybrid_weights": state.hybrid_weights,
         "stakeholder_note": "Final demand is produced by hybrid blend of XGBoost and RandomForest for stable planning.",
         "feature_overrides_applied": sanitized_overrides,
         "predictions": result,
+        "hist_actual_vs_pred": hist_actual_vs_pred,
     }
 
 

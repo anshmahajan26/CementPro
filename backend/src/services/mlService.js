@@ -43,7 +43,18 @@ export const predictDemand = async (days = 7, featureOverrides = {}) => {
       };
     });
 
-    return { predictions, is_fallback: true };
+    const hist_actual_vs_pred = Array.from({ length: 15 }).map((_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - 15 + i);
+      const actual = 1600 + Math.random() * 400;
+      return {
+        date: date.toISOString().split("T")[0],
+        actual_demand_m3: Math.round(actual),
+        predicted_demand_m3: Math.round(actual + (Math.random() - 0.5) * 150)
+      };
+    });
+
+    return { predictions, hist_actual_vs_pred, is_fallback: true };
   }
 };
 
