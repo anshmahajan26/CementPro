@@ -21,6 +21,7 @@ const ProcurementPage = () => {
   const [activeLocation, setActiveLocation] = useState(null);
   const [isSimulating, setIsSimulating] = useState(false);
   const [isDispatching, setIsDispatching] = useState(false);
+  const [cementType, setCementType] = useState("OPC 43");
 
   const loadData = async (targetDays = days, targetInv = inventory, customInputs = null, customWeather = null) => {
     try {
@@ -143,7 +144,7 @@ const ProcurementPage = () => {
       const ordersToCreate = data.recommendation
         .filter(day => day.cement_required_tonnes > 0)
         .map(day => ({
-          cementType: "OPC 43",
+          cementType: cementType,
           quantity: Math.ceil(day.cement_required_tonnes),
           destination: `${activeLocation.name} (${day.date})`
         }));
@@ -232,6 +233,19 @@ const ProcurementPage = () => {
               <div className="flex flex-col gap-1">
                 <span className="text-xs font-medium text-muted-foreground">Current Silo (t)</span>
                 <Input type="number" min={0} value={inventory} onChange={(e) => setInventory(e.target.value)} className="w-full sm:w-32 border-primary/50 bg-primary/5 font-semibold text-primary" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-medium text-muted-foreground">Cement Type</span>
+                <select 
+                  value={cementType} 
+                  onChange={(e) => setCementType(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-32 border-primary/50 bg-primary/5 font-semibold text-primary"
+                >
+                  <option value="OPC 43">OPC 43</option>
+                  <option value="OPC 53">OPC 53</option>
+                  <option value="PPC">PPC</option>
+                  <option value="PSC">PSC</option>
+                </select>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
