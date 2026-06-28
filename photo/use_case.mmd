@@ -1,0 +1,42 @@
+%%{init: {"flowchart": {"curve": "stepBefore"}}}%%
+graph LR
+    %% Styling to mimic the user's screenshot (pill-shaped actors, rounded tasks)
+    classDef root fill:#ffffff,stroke:none,color:transparent
+    classDef actor fill:#f9f9f9,stroke:#333,stroke-width:2px,rx:20,ry:20,font-weight:bold,color:#000
+    classDef usecase fill:#ffffff,stroke:#333,stroke-width:1.5px,rx:15,ry:15,color:#000
+
+    %% Invisible root to force the tree structure to branch properly from left to right
+    Root[ ]:::root
+
+    %% Actors
+    M[Manager]:::actor
+    O[Operator]:::actor
+
+    Root --- M
+    Root --- O
+
+    %% Manager Use Cases
+    M1(Data & ML Pipeline Management):::usecase
+    M2(Execute AI Demand Forecasting):::usecase
+    M3(Simulate & Dispatch Procurement):::usecase
+    M4(Evaluate Carbon Sustainability):::usecase
+    M5(View KPI Dashboards & Manage Emergencies):::usecase
+    M6(Export Analytics Reports):::usecase
+
+    M --- M1
+    M --- M2
+    M --- M3
+    M --- M4
+    M --- M5
+    M --- M6
+
+    %% Operator Use Cases
+    O1(Monitor Daily Delivery Orders):::usecase
+    O2(Update Logistics Status):::usecase
+    O3(Raise Emergency Alerts):::usecase
+    O4(View Mini Operational Forecast):::usecase
+
+    O --- O1
+    O --- O2
+    O --- O3
+    O --- O4
