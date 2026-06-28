@@ -12,7 +12,10 @@ import {
   Legend,
   LineChart,
   Line,
-  Label
+  Label,
+  Pie,
+  PieChart,
+  Cell
 } from "recharts";
 import api from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -208,6 +211,22 @@ const DashboardPage = () => {
   });
   const mfgPct = totalCo2 > 0 ? ((totalMfg / totalCo2) * 100).toFixed(0) : 0;
 
+  // Calculate Material Pollution Contribution breakdown (Cement vs 10mm aggregates vs 20mm aggregates logistics)
+  const avgCement = data.averages?.cement_kg_m3 || 350;
+  const avgAgg10 = data.averages?.aggregate_10mm_pct || 45;
+  const avgAgg20 = data.averages?.aggregate_20mm_pct || 55;
+
+  const cementPollution = avgCement * 0.92;
+  const agg10Pollution = 1800 * (avgAgg10 / 100) * 0.012;
+  const agg20Pollution = 1800 * (avgAgg20 / 100) * 0.010;
+  const totalPollution = cementPollution + agg10Pollution + agg20Pollution || 1;
+
+  const pollutionData = [
+    { name: "Cement Manufacturing", value: Math.round(cementPollution), color: "bg-[#0ea5e9]", fill: "#0ea5e9", percent: (cementPollution / totalPollution) * 100 },
+    { name: "Coarse 10mm Aggregates", value: Math.round(agg10Pollution), color: "bg-[#8b5cf6]", fill: "#8b5cf6", percent: (agg10Pollution / totalPollution) * 100 },
+    { name: "Coarse 20mm Aggregates", value: Math.round(agg20Pollution), color: "bg-[#f59e0b]", fill: "#f59e0b", percent: (agg20Pollution / totalPollution) * 100 }
+  ];
+
   const kpiCards = [
     { label: "Current Demand (m³)", value: formatNumber(data.kpis.current_demand_m3) },
     { label: "Next Day Forecast (m³)", value: formatNumber(data.kpis.predicted_demand_next_day_m3) },
@@ -335,8 +354,8 @@ const DashboardPage = () => {
         <CardContent className="px-2 sm:px-4 pb-6">
           <div className="h-64 sm:h-80 md:h-[360px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data.charts.procurement_trend} margin={{ bottom: 15, right: 10, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
+              <BarChart data={data.charts.procurement_trend} margin={{ bottom: 15, right: 10, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={v => v?.slice(5)} minTickGap={20}>
                   <Label value="Date" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
                 </XAxis>
@@ -348,9 +367,9 @@ const DashboardPage = () => {
                 </YAxis>
                 <Tooltip labelFormatter={(label) => `Date: ${label}`} />
                 <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
-                <Line yAxisId="left" type="monotone" name="RMC Demand" dataKey="predicted_demand_m3" stroke="#0284c7" strokeWidth={2} dot={{ r: 3 }} />
-                <Line yAxisId="right" type="stepAfter" name="Cement Needed" dataKey="cement_required_tonnes" stroke="#f59e0b" strokeWidth={2} />
-              </LineChart>
+                <Bar yAxisId="left" name="RMC Demand" dataKey="predicted_demand_m3" fill="#0284c7" radius={[4, 4, 0, 0]} />
+                <Bar yAxisId="right" name="Cement Needed" dataKey="cement_required_tonnes" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+              </BarChart>
             </ResponsiveContainer>
           </div>
           {/* Dynamic AI Insight */}
@@ -364,7 +383,7 @@ const DashboardPage = () => {
       </Card>
 
       {/* Charts Row 2 */}
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-3">
         <Card>
           <CardHeader className="px-4 sm:px-6 pb-2">
             <CardTitle className="text-sm sm:text-base">Project Progress vs Demand</CardTitle>
@@ -425,6 +444,53 @@ const DashboardPage = () => {
                 <span>🌱</span> Sustainability Recommendation
               </span>
               Total footprint over this horizon is <strong className="text-emerald-900 dark:text-white font-bold">{formatNumber(totalCo2)} kgCO₂</strong>. Core material manufacturing (cement) accounts for <strong className="text-emerald-900 dark:text-white font-bold">{mfgPct}%</strong> of total footprint. Switching to fly ash (PPC) or limestone (LC3) can reduce total emissions significantly.
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="px-4 sm:px-6 pb-2">
+            <CardTitle className="text-sm sm:text-base">Material Pollution Source</CardTitle>
+          </CardHeader>
+          <CardContent className="px-2 sm:px-4 pb-6 flex flex-col justify-between h-[calc(100%-48px)]">
+            <div className="h-40 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pollutionData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={35}
+                    outerRadius={55}
+                    minAngle={15}
+                    label={false}
+                  >
+                    {pollutionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => [`${value} kgCO₂/m³`, 'Footprint Intensity']} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            {/* Legend & AI Insight */}
+            <div className="w-full flex flex-col space-y-2 mt-2">
+              <div className="flex flex-col space-y-1 text-[10px] sm:text-xs">
+                {pollutionData.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between border-b border-border/40 pb-0.5 last:border-0 last:pb-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`w-2.5 h-2.5 rounded-full ${item.color} shrink-0`}></span>
+                      <span className="font-semibold text-muted-foreground truncate max-w-[130px]">{item.name}</span>
+                    </div>
+                    <span className="font-bold text-foreground">{item.percent.toFixed(1)}%</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-2 p-2.5 bg-emerald-500/5 rounded-lg border border-emerald-500/10 text-[9px] sm:text-[10px] text-emerald-950 dark:text-emerald-200 leading-tight">
+                <strong>AI Insight:</strong> Cement represents <strong className="font-bold">{pollutionData[0].percent.toFixed(0)}%</strong> of raw mix emissions. Aggregate logistics (10mm & 20mm) accounts for under <strong className="font-bold">6%</strong>. Swapping OPC cement yields the highest sustainability return.
+              </div>
             </div>
           </CardContent>
         </Card>

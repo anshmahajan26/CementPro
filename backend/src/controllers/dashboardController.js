@@ -111,6 +111,7 @@ export const getDashboard = async (req, res) => {
     return res.json({
       success: true,
       active_location: activeLat && activeLon ? { lat: activeLat, lon: activeLon, name: locationName } : null,
+      averages: procurement.averages,
       kpis: {
         current_demand_m3: currentDemand,
         predicted_demand_next_day_m3: predictedDemand,
