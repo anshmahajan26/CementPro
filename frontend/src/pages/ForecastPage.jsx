@@ -25,6 +25,7 @@ import { Loader2 } from "lucide-react";
 import MapLocationPicker from "@/components/ui/MapLocationPicker";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import SavedForecastsManager from "@/components/ui/SavedForecastsManager";
+import LocationNameRenderer from "@/components/ui/LocationNameRenderer";
 
 const DEFAULT_CENTER = { lat: 28.7041, lng: 77.1025 };
 
@@ -204,7 +205,7 @@ const ForecastPage = () => {
               <div className="mb-5 flex flex-wrap items-center gap-2 text-xs">
                 <Badge variant="outline" className="flex items-center gap-1.5 text-xs font-medium text-foreground px-3 py-1">
                   <span className="text-primary">📍</span>
-                  {inputFeatures.locationName || `${Number(inputFeatures.latitude).toFixed(4)}, ${Number(inputFeatures.longitude).toFixed(4)}`}
+                  <LocationNameRenderer name={inputFeatures.locationName} lat={inputFeatures.latitude} lon={inputFeatures.longitude} />
                 </Badge>
                 <Button
                   variant="ghost"
@@ -401,8 +402,9 @@ const ForecastPage = () => {
               </CardHeader>
               <CardContent className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
                 <p className="text-sm text-muted-foreground">Source: {result.weather.source}</p>
-                <p className="text-sm text-muted-foreground">Lat: {formatNumber(result.weather.latitude, 4)}</p>
-                <p className="text-sm text-muted-foreground">Lon: {formatNumber(result.weather.longitude, 4)}</p>
+                <p className="text-sm text-muted-foreground">
+                  Location: <LocationNameRenderer lat={result.weather.latitude} lon={result.weather.longitude} />
+                </p>
                 <p className="text-sm text-muted-foreground">Days fetched: {result.weather.daily.length}</p>
               </CardContent>
             </Card>

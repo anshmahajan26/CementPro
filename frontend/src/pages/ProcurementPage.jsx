@@ -9,6 +9,7 @@ import { formatNumber } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import SavedForecastsManager from "@/components/ui/SavedForecastsManager";
 import SavedProcurementsManager from "@/components/ui/SavedProcurementsManager";
+import LocationNameRenderer from "@/components/ui/LocationNameRenderer";
 const ProcurementPage = () => {
   const [days, setDays] = useState(7);
   const [inventory, setInventory] = useState(500);
@@ -206,7 +207,7 @@ const ProcurementPage = () => {
             <CardTitle className="text-base sm:text-lg">Cement Procurement Planning</CardTitle>
             {activeLocation ? (
               <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 text-[10px] sm:text-xs self-start sm:self-auto">
-                📍 {activeLocation.name}
+                📍 <LocationNameRenderer name={activeLocation.name} lat={activeLocation.lat} lon={activeLocation.lon} />
               </Badge>
             ) : null}
           </div>
@@ -281,7 +282,7 @@ const ProcurementPage = () => {
                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
             <h2 className="text-2xl font-bold text-blue-900 mb-2">Simulation Ready</h2>
-            <p className="text-blue-700 max-w-md mb-6">Location <strong>{activeLocation.name}</strong> securely loaded. Please input your precise starting Silo Cement in Tonnes, and hit Simulate Burn-Down to generate your logistics tracking board.</p>
+            <p className="text-blue-700 max-w-md mb-6">Location <strong><LocationNameRenderer name={activeLocation.name} lat={activeLocation.lat} lon={activeLocation.lon} /></strong> securely loaded. Please input your precise starting Silo Cement in Tonnes, and hit Simulate Burn-Down to generate your logistics tracking board.</p>
           </CardContent>
         </Card>
       ) : (

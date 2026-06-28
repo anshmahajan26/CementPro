@@ -4,26 +4,7 @@ import { Input } from "./input";
 import { formatNumber } from "@/lib/utils";
 import api from "@/lib/api";
 
-const LocationNameRenderer = ({ name, lat, lon }) => {
-  const [displayName, setDisplayName] = useState(name);
-  
-  useEffect(() => {
-    if (name && name.startsWith("Prediction Trace (") && lat && lon) {
-      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`)
-        .then(res => res.json())
-        .then(data => {
-          const fetchedName = data?.address?.city || data?.address?.town || data?.address?.village || data?.address?.county || data?.display_name?.split(",")[0];
-          if (fetchedName) {
-            setDisplayName(`${fetchedName} - Restored Profile`);
-          }
-        }).catch(() => {});
-    } else {
-      setDisplayName(name);
-    }
-  }, [name, lat, lon]);
-
-  return <>{displayName}</>;
-};
+import LocationNameRenderer from "./LocationNameRenderer";
 
 const SavedForecastsManager = ({
   isOpen,

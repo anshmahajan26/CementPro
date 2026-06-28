@@ -9,6 +9,7 @@ import { formatNumber } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import SavedForecastsManager from "@/components/ui/SavedForecastsManager";
 import SavedCarbonsManager from "@/components/ui/SavedCarbonsManager";
+import LocationNameRenderer from "@/components/ui/LocationNameRenderer";
 
 const CarbonPage = () => {
   const [days, setDays] = useState(7);
@@ -168,7 +169,7 @@ const CarbonPage = () => {
             {activeLocation && (
               <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200 py-1.5 px-3">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
-                Bound: {activeLocation.name}
+                Bound: <LocationNameRenderer name={activeLocation.name} lat={activeLocation.lat} lon={activeLocation.lon} />
               </Badge>
             )}
           </CardTitle>
@@ -233,7 +234,7 @@ const CarbonPage = () => {
               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600"><path d="M12 2v20" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
             </div>
             <h2 className="text-2xl font-bold text-blue-900 mb-2">Simulation Ready</h2>
-            <p className="text-blue-700 max-w-md mb-6">Site geometry <strong>{activeLocation.name}</strong> securely parsed. Please hit Estimate Emissions to generate your footprint mapping and compliance metrics.</p>
+            <p className="text-blue-700 max-w-md mb-6">Site geometry <strong><LocationNameRenderer name={activeLocation.name} lat={activeLocation.lat} lon={activeLocation.lon} /></strong> securely parsed. Please hit Estimate Emissions to generate your footprint mapping and compliance metrics.</p>
           </CardContent>
         </Card>
       ) : (
