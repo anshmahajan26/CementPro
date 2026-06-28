@@ -364,35 +364,7 @@ const ForecastPage = () => {
           </Card>
 
 
-          {/* Final demand area trend */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Final Demand Area Trend</CardTitle>
-            </CardHeader>
-            <CardContent className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={result.predictions.map((item) => ({
-                    ...item,
-                    final_prediction: item.adjusted_predicted_demand_m3 ?? item.predicted_demand_m3
-                  }))}
-                  margin={{ top: 20, right: 30, left: 30, bottom: 25 }}
-                >
-                  <defs>
-                    <linearGradient id="colorArea" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                  <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} label={{ value: "Date", position: "insideBottom", offset: -18, fill: "hsl(var(--muted-foreground))", fontSize: 13 }} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} label={{ value: "Demand of Cement (m³)", angle: -90, position: "insideLeft", style: {textAnchor: 'middle'}, offset: -15, fill: "hsl(var(--muted-foreground))", fontSize: 13 }} />
-                  <Tooltip contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 20px rgba(0,0,0,0.1)" }} />
-                  <Area type="monotone" dataKey="final_prediction" name="Final Demand" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorArea)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+
 
           {/* Weather signal */}
           {result.weather?.daily?.length ? (

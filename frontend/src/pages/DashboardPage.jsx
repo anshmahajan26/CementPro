@@ -289,55 +289,32 @@ const DashboardPage = () => {
         </CardContent>
       </Card>
 
-      {/* Charts Row 1 */}
-      <div className="grid gap-4 xl:grid-cols-2">
-        <Card>
-          <CardHeader className="px-4 sm:px-6 pb-2">
-            <CardTitle className="text-sm sm:text-base">Forecast Demand Trend</CardTitle>
-          </CardHeader>
-          <CardContent className="h-56 sm:h-72 px-2 sm:px-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data.charts.demand_trend} margin={{ bottom: 15, left: 0, right: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={v => v?.slice(5)} minTickGap={20}>
-                  <Label value="Date" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
-                </XAxis>
-                <YAxis tick={{ fontSize: 10 }} width={52}>
-                  <Label value="Volume (m³)" angle={-90} position="insideLeft" style={{ textAnchor: "middle", fontSize: 11 }} />
-                </YAxis>
-                <Tooltip labelFormatter={(label) => `Date: ${label}`} formatter={(value) => [formatNumber(value), "Demand Volume"]} />
-                <Area type="monotone" name="Demand Volume" dataKey="demand" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.22} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="px-4 sm:px-6 pb-2">
-            <CardTitle className="text-sm sm:text-base">Procurement vs Demand</CardTitle>
-          </CardHeader>
-          <CardContent className="h-56 sm:h-72 px-2 sm:px-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data.charts.procurement_trend} margin={{ bottom: 15, right: 10, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={v => v?.slice(5)} minTickGap={20}>
-                  <Label value="Date" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
-                </XAxis>
-                <YAxis yAxisId="left" tick={{ fontSize: 10 }} width={45}>
-                  <Label value="Demand (m³)" angle={-90} position="insideLeft" style={{ textAnchor: "middle", fontSize: 11 }} />
-                </YAxis>
-                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} width={40}>
-                  <Label value="Cement (t)" angle={90} position="insideRight" style={{ textAnchor: "middle", fontSize: 11 }} />
-                </YAxis>
-                <Tooltip labelFormatter={(label) => `Date: ${label}`} />
-                <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
-                <Line yAxisId="left" type="monotone" name="RMC Demand" dataKey="predicted_demand_m3" stroke="#0284c7" strokeWidth={2} dot={{ r: 3 }} />
-                <Line yAxisId="right" type="stepAfter" name="Cement Needed" dataKey="cement_required_tonnes" stroke="#f59e0b" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Charts Row 1 - Main Timeline Comparison */}
+      <Card>
+        <CardHeader className="px-4 sm:px-6 pb-2">
+          <CardTitle className="text-sm sm:text-base">Procurement vs Demand</CardTitle>
+        </CardHeader>
+        <CardContent className="h-64 sm:h-80 md:h-[360px] px-2 sm:px-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data.charts.procurement_trend} margin={{ bottom: 15, right: 10, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={v => v?.slice(5)} minTickGap={20}>
+                <Label value="Date" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
+              </XAxis>
+              <YAxis yAxisId="left" tick={{ fontSize: 10 }} width={45}>
+                <Label value="Demand (m³)" angle={-90} position="insideLeft" style={{ textAnchor: "middle", fontSize: 11 }} />
+              </YAxis>
+              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} width={40}>
+                <Label value="Cement (t)" angle={90} position="insideRight" style={{ textAnchor: "middle", fontSize: 11 }} />
+              </YAxis>
+              <Tooltip labelFormatter={(label) => `Date: ${label}`} />
+              <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
+              <Line yAxisId="left" type="monotone" name="RMC Demand" dataKey="predicted_demand_m3" stroke="#0284c7" strokeWidth={2} dot={{ r: 3 }} />
+              <Line yAxisId="right" type="stepAfter" name="Cement Needed" dataKey="cement_required_tonnes" stroke="#f59e0b" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
       {/* Charts Row 2 */}
       <div className="grid gap-4 xl:grid-cols-2">

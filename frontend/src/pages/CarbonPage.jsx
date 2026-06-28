@@ -331,22 +331,7 @@ const CarbonPage = () => {
             </Card>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Cumulative Footprint Projection Matrix</CardTitle>
-            </CardHeader>
-            <CardContent className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.daily} margin={{ top: 10, right: 10, left: 20, bottom: 25 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 12 }} tickMargin={10} minTickGap={30} label={{ value: 'Simulation Timeline (Days)', position: 'insideBottom', offset: -15, style: { fill: '#475569', fontSize: 13, fontWeight: 500 } }} />
-                  <YAxis tick={{ fill: '#64748b', fontSize: 12 }} label={{ value: 'Net Weight (kgCO₂)', angle: -90, position: 'insideLeft', offset: -5, style: { fill: '#475569', fontSize: 13, fontWeight: 500 } }} />
-                  <Tooltip cursor={{ fill: '#f1f5f9' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Bar name="Total Environmental Cost" dataKey="total_emission_kgco2" fill="#10b981" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+
         </>
       )}
     </div>

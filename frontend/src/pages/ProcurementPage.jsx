@@ -370,70 +370,23 @@ const ProcurementPage = () => {
             </CardContent>
           </Card>
 
-          <div className="grid gap-4 xl:grid-cols-2">
-            <Card>
-              <CardHeader className="px-4 sm:px-6 pb-2">
-                <CardTitle className="text-sm sm:text-base">Demand vs Cement Trend</CardTitle>
-              </CardHeader>
-              <CardContent className="h-52 sm:h-72 px-1 sm:px-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data.recommendation} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                    <XAxis dataKey="date" tick={{fontSize: 10}} tickFormatter={v => v?.slice(5)} minTickGap={20} label={{ value: "Date", position: "insideBottom", offset: -12, fontSize: 11 }} />
-                    <YAxis yAxisId="left" tick={{fontSize: 10}} width={45} label={{ value: "Demand (m³)", angle: -90, position: "insideLeft", style: {textAnchor: 'middle'}, fontSize: 11 }} />
-                    <YAxis yAxisId="right" orientation="right" tick={{fontSize: 10}} width={40} label={{ value: "Cement (t)", angle: 90, position: "insideRight", style: {textAnchor: 'middle'}, fontSize: 11 }} />
-                    <Tooltip contentStyle={{ borderRadius: "10px", backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                    <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
-                    <Line yAxisId="left" type="monotone" dataKey="predicted_demand_m3" name="RMC Demand" stroke="#0284c7" strokeWidth={2} dot={{r: 2}} activeDot={{r: 4}} />
-                    <Line yAxisId="right" type="monotone" dataKey="cement_required_tonnes" name="Cement Load" stroke="#f97316" strokeWidth={2} dot={{r: 2}} activeDot={{r: 4}} />
-                    <Line yAxisId="right" type="stepAfter" dataKey="inventory_remaining_tonnes" name="Silo" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="px-4 sm:px-6 pb-2">
-                <CardTitle className="text-sm sm:text-base">Aggregate Mix Snapshot</CardTitle>
-              </CardHeader>
-              <CardContent className="h-52 sm:h-72 px-1 sm:px-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: "10mm Agg", value: data.averages.aggregate_10mm_pct },
-                        { name: "20mm Agg", value: data.averages.aggregate_20mm_pct }
-                      ]}
-                      dataKey="value"
-                      nameKey="name"
-                      outerRadius={80}
-                      label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    >
-                      <Cell fill="#06b6d4" />
-                      <Cell fill="#f43f5e" />
-                    </Pie>
-                    <Tooltip formatter={(val) => `${formatNumber(val, 1)}%`} contentStyle={{ borderRadius: "10px", backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-
           <Card>
             <CardHeader className="px-4 sm:px-6 pb-2">
-              <CardTitle className="text-sm sm:text-base">Daily Cement Requirement Bars</CardTitle>
+              <CardTitle className="text-sm sm:text-base">Demand vs Cement Trend</CardTitle>
             </CardHeader>
-            <CardContent className="h-52 sm:h-72 px-1 sm:px-4">
+            <CardContent className="h-64 sm:h-80 md:h-[400px] px-1 sm:px-4">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.recommendation} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
+                <LineChart data={data.recommendation} margin={{ top: 10, right: 8, left: 0, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                  <XAxis dataKey="date" tick={{fontSize: 10}} tickFormatter={v => v?.slice(5)} minTickGap={15} label={{ value: "Date", position: "insideBottom", offset: -12, fontSize: 11 }} />
-                  <YAxis tick={{fontSize: 10}} width={48} label={{ value: "Cement (t)", angle: -90, position: "insideLeft", style: {textAnchor: 'middle'}, fontSize: 11 }} />
-                  <Tooltip cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }} contentStyle={{ borderRadius: "10px", backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                  <Legend verticalAlign="top" height={28} wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="cement_required_tonnes" name="Daily Cement (t)" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
-                </BarChart>
+                  <XAxis dataKey="date" tick={{fontSize: 10}} tickFormatter={v => v?.slice(5)} minTickGap={20} label={{ value: "Date", position: "insideBottom", offset: -12, fontSize: 11 }} />
+                  <YAxis yAxisId="left" tick={{fontSize: 10}} width={45} label={{ value: "Demand (m³)", angle: -90, position: "insideLeft", style: {textAnchor: 'middle'}, fontSize: 11 }} />
+                  <YAxis yAxisId="right" orientation="right" tick={{fontSize: 10}} width={40} label={{ value: "Cement (t)", angle: 90, position: "insideRight", style: {textAnchor: 'middle'}, fontSize: 11 }} />
+                  <Tooltip contentStyle={{ borderRadius: "10px", backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
+                  <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
+                  <Line yAxisId="left" type="monotone" dataKey="predicted_demand_m3" name="RMC Demand" stroke="#0284c7" strokeWidth={2} dot={{r: 2}} activeDot={{r: 4}} />
+                  <Line yAxisId="right" type="monotone" dataKey="cement_required_tonnes" name="Cement Load" stroke="#f97316" strokeWidth={2} dot={{r: 2}} activeDot={{r: 4}} />
+                  <Line yAxisId="right" type="stepAfter" dataKey="inventory_remaining_tonnes" name="Silo" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+                </LineChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
