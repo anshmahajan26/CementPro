@@ -170,6 +170,44 @@ const DashboardPage = () => {
 
   if (!data) return null;
 
+  // Calculate dynamic metrics for insights on the fly
+  const procTrend = data?.charts?.procurement_trend || [];
+  let maxDemand = 0;
+  let peakDate = "-";
+  let maxCement = 0;
+  procTrend.forEach(item => {
+    if (item.predicted_demand_m3 > maxDemand) {
+      maxDemand = item.predicted_demand_m3;
+      peakDate = item.date;
+    }
+    if (item.cement_required_tonnes > maxCement) {
+      maxCement = item.cement_required_tonnes;
+    }
+  });
+
+  const projProgress = data?.charts?.project_progress_vs_demand || [];
+  let maxProjDemand = 0;
+  let peakProjDay = "-";
+  projProgress.forEach(item => {
+    if (item.demand > maxProjDemand) {
+      maxProjDemand = item.demand;
+      peakProjDay = item.day_in_project;
+    }
+  });
+
+  const carbonTrend = data?.charts?.carbon_trend || [];
+  let totalCo2 = 0;
+  let totalMfg = 0;
+  let totalBat = 0;
+  let totalTrn = 0;
+  carbonTrend.forEach(item => {
+    totalCo2 += item.total_emission_kgco2 || 0;
+    totalMfg += item.cement_emission_kgco2 || 0;
+    totalBat += item.batching_emission_kgco2 || 0;
+    totalTrn += item.transport_emission_kgco2 || 0;
+  });
+  const mfgPct = totalCo2 > 0 ? ((totalMfg / totalCo2) * 100).toFixed(0) : 0;
+
   const kpiCards = [
     { label: "Current Demand (m³)", value: formatNumber(data.kpis.current_demand_m3) },
     { label: "Next Day Forecast (m³)", value: formatNumber(data.kpis.predicted_demand_next_day_m3) },
@@ -294,25 +332,34 @@ const DashboardPage = () => {
         <CardHeader className="px-4 sm:px-6 pb-2">
           <CardTitle className="text-sm sm:text-base">Procurement vs Demand</CardTitle>
         </CardHeader>
-        <CardContent className="h-64 sm:h-80 md:h-[360px] px-2 sm:px-4">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data.charts.procurement_trend} margin={{ bottom: 15, right: 10, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={v => v?.slice(5)} minTickGap={20}>
-                <Label value="Date" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
-              </XAxis>
-              <YAxis yAxisId="left" tick={{ fontSize: 10 }} width={45}>
-                <Label value="Demand (m³)" angle={-90} position="insideLeft" style={{ textAnchor: "middle", fontSize: 11 }} />
-              </YAxis>
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} width={40}>
-                <Label value="Cement (t)" angle={90} position="insideRight" style={{ textAnchor: "middle", fontSize: 11 }} />
-              </YAxis>
-              <Tooltip labelFormatter={(label) => `Date: ${label}`} />
-              <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
-              <Line yAxisId="left" type="monotone" name="RMC Demand" dataKey="predicted_demand_m3" stroke="#0284c7" strokeWidth={2} dot={{ r: 3 }} />
-              <Line yAxisId="right" type="stepAfter" name="Cement Needed" dataKey="cement_required_tonnes" stroke="#f59e0b" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
+        <CardContent className="px-2 sm:px-4 pb-6">
+          <div className="h-64 sm:h-80 md:h-[360px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data.charts.procurement_trend} margin={{ bottom: 15, right: 10, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={v => v?.slice(5)} minTickGap={20}>
+                  <Label value="Date" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
+                </XAxis>
+                <YAxis yAxisId="left" tick={{ fontSize: 10 }} width={45}>
+                  <Label value="Demand (m³)" angle={-90} position="insideLeft" style={{ textAnchor: "middle", fontSize: 11 }} />
+                </YAxis>
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} width={40}>
+                  <Label value="Cement (t)" angle={90} position="insideRight" style={{ textAnchor: "middle", fontSize: 11 }} />
+                </YAxis>
+                <Tooltip labelFormatter={(label) => `Date: ${label}`} />
+                <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
+                <Line yAxisId="left" type="monotone" name="RMC Demand" dataKey="predicted_demand_m3" stroke="#0284c7" strokeWidth={2} dot={{ r: 3 }} />
+                <Line yAxisId="right" type="stepAfter" name="Cement Needed" dataKey="cement_required_tonnes" stroke="#f59e0b" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          {/* Dynamic AI Insight */}
+          <div className="mt-4 p-3.5 bg-sky-500/5 rounded-xl border border-sky-500/10 text-xs sm:text-sm text-sky-950 dark:text-sky-200">
+            <span className="font-bold text-sky-800 dark:text-sky-300 flex items-center gap-1.5 mb-1">
+              <span>💡</span> AI Procurement Forecast
+            </span>
+            RMC demand is forecasted to reach a peak of <strong className="text-sky-900 dark:text-white font-bold">{formatNumber(maxDemand)} m³</strong> on <strong className="text-sky-900 dark:text-white font-bold">{peakDate}</strong>, requiring a peak supply of <strong className="text-sky-900 dark:text-white font-bold">{formatNumber(maxCement)} tonnes</strong> of cement. Prioritize dispatch refilling 24 to 48 hours prior to this date to prevent site depletion.
+          </div>
         </CardContent>
       </Card>
 
@@ -322,21 +369,30 @@ const DashboardPage = () => {
           <CardHeader className="px-4 sm:px-6 pb-2">
             <CardTitle className="text-sm sm:text-base">Project Progress vs Demand</CardTitle>
           </CardHeader>
-          <CardContent className="h-56 sm:h-72 px-2 sm:px-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.charts.project_progress_vs_demand} margin={{ bottom: 15, left: 0, right: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day_in_project" tick={{ fontSize: 10 }} minTickGap={15}>
-                  <Label value="Day of Project" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
-                </XAxis>
-                <YAxis tick={{ fontSize: 10 }} width={52}>
-                  <Label value="Volume (m³)" angle={-90} position="insideLeft" style={{ textAnchor: "middle", fontSize: 11 }} />
-                </YAxis>
-                <Tooltip labelFormatter={(label) => `Project Day: ${label}`} cursor={{ fill: 'transparent' }} />
-                <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
-                <Bar name="Demand Volume (m³)" dataKey="demand" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <CardContent className="px-2 sm:px-4 pb-6">
+            <div className="h-56 sm:h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.charts.project_progress_vs_demand} margin={{ bottom: 15, left: 0, right: 8 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="day_in_project" tick={{ fontSize: 10 }} minTickGap={15}>
+                    <Label value="Day of Project" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
+                  </XAxis>
+                  <YAxis tick={{ fontSize: 10 }} width={52}>
+                    <Label value="Volume (m³)" angle={-90} position="insideLeft" style={{ textAnchor: "middle", fontSize: 11 }} />
+                  </YAxis>
+                  <Tooltip labelFormatter={(label) => `Project Day: ${label}`} cursor={{ fill: 'transparent' }} />
+                  <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
+                  <Bar name="Demand Volume (m³)" dataKey="demand" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            {/* Dynamic AI Insight */}
+            <div className="mt-4 p-3.5 bg-indigo-500/5 rounded-xl border border-indigo-500/10 text-xs sm:text-sm text-indigo-950 dark:text-indigo-200">
+              <span className="font-bold text-indigo-800 dark:text-indigo-300 flex items-center gap-1.5 mb-1">
+                <span>📈</span> Project Timeline Insight
+              </span>
+              Production intensity peaks at <strong className="text-indigo-900 dark:text-white font-bold">{formatNumber(maxProjDemand)} m³</strong> on <strong className="text-indigo-900 dark:text-white font-bold">Day {peakProjDay}</strong> of the project. Ensure mixing machinery is serviced and operational staff schedules are aligned for high-throughput batching around this phase.
+            </div>
           </CardContent>
         </Card>
 
@@ -344,22 +400,32 @@ const DashboardPage = () => {
           <CardHeader className="px-4 sm:px-6 pb-2">
             <CardTitle className="text-sm sm:text-base">Carbon Output Metrics</CardTitle>
           </CardHeader>
-          <CardContent className="h-56 sm:h-72 px-2 sm:px-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data.charts.carbon_trend} margin={{ bottom: 15, left: 0, right: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={v => v?.slice(5)} minTickGap={20}>
-                  <Label value="Date" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
-                </XAxis>
-                <YAxis tick={{ fontSize: 10 }} width={55}>
-                  <Label value="Emission (kgCO₂)" angle={-90} position="insideLeft" style={{ textAnchor: "middle", fontSize: 11 }} />
-                </YAxis>
-                <Tooltip />
-                <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
-                <Area type="monotone" stackId="1" name="Cement Emission" dataKey="cement_emission_kgco2" fill="#0ea5e9" stroke="#0284c7" />
-                <Area type="monotone" stackId="1" name="Transport Emission" dataKey="transport_emission_kgco2" fill="#f59e0b" stroke="#d97706" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <CardContent className="px-2 sm:px-4 pb-6">
+            <div className="h-56 sm:h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={data.charts.carbon_trend} margin={{ bottom: 15, left: 0, right: 8 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={v => v?.slice(5)} minTickGap={20}>
+                    <Label value="Date" offset={-10} position="insideBottom" style={{ fontSize: 11 }} />
+                  </XAxis>
+                  <YAxis tick={{ fontSize: 10 }} width={55}>
+                    <Label value="Emission (kgCO₂)" angle={-90} position="insideLeft" style={{ textAnchor: "middle", fontSize: 11 }} />
+                  </YAxis>
+                  <Tooltip />
+                  <Legend verticalAlign="top" height={30} wrapperStyle={{ fontSize: 11 }} />
+                  <Area type="monotone" stackId="1" name="Manufacturing (Cement)" dataKey="cement_emission_kgco2" fill="#0ea5e9" stroke="#0284c7" />
+                  <Area type="monotone" stackId="1" name="Batching Operations" dataKey="batching_emission_kgco2" fill="#8b5cf6" stroke="#7c3aed" />
+                  <Area type="monotone" stackId="1" name="Vehicle Transport" dataKey="transport_emission_kgco2" fill="#f59e0b" stroke="#d97706" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+            {/* Dynamic AI Insight */}
+            <div className="mt-4 p-3.5 bg-emerald-500/5 rounded-xl border border-emerald-500/10 text-xs sm:text-sm text-emerald-950 dark:text-emerald-200">
+              <span className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 mb-1">
+                <span>🌱</span> Sustainability Recommendation
+              </span>
+              Total footprint over this horizon is <strong className="text-emerald-900 dark:text-white font-bold">{formatNumber(totalCo2)} kgCO₂</strong>. Core material manufacturing (cement) accounts for <strong className="text-emerald-900 dark:text-white font-bold">{mfgPct}%</strong> of total footprint. Switching to fly ash (PPC) or limestone (LC3) can reduce total emissions significantly.
+            </div>
           </CardContent>
         </Card>
       </div>
