@@ -95,8 +95,8 @@ export const updateOrderStatus = async (req, res) => {
     // Role-based logic
     if (req.user.role === "Operator") {
       // Operators can mark as IN_TRANSIT, DELIVERED, or EMERGENCY
-      if (!["IN_TRANSIT", "DELIVERED", "EMERGENCY"].includes(status)) {
-         return res.status(403).json({ message: "Operators can only set status to IN_TRANSIT, DELIVERED, or EMERGENCY" });
+      if (!["IN_TRANSIT", "DELIVERED", "EMERGENCY", "CANCELLED"].includes(status)) {
+         return res.status(403).json({ message: "Operators can only set status to IN_TRANSIT, DELIVERED, EMERGENCY, or CANCELLED" });
       }
       order.operatorId = req.user._id; // Assign themselves as the operator
       if (status === "EMERGENCY" && emergencyAlert) {

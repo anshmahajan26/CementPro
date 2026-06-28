@@ -340,7 +340,7 @@ const ProcurementPage = () => {
             </Card>
             <Card>
               <CardContent className="pt-4 px-3 sm:px-5 sm:pt-5">
-                <p className="text-[10px] sm:text-sm text-muted-foreground leading-tight">Avg Cement Ratio</p>
+                <p className="text-[10px] sm:text-sm text-muted-foreground leading-tight">Avg Cement Ratio (kg/m³ RMC)</p>
                 <p className="font-heading text-xl sm:text-3xl text-primary mt-1">{formatNumber(data.averages.cement_kg_m3)} kg/m³</p>
               </CardContent>
             </Card>
@@ -444,11 +444,11 @@ const ProcurementPage = () => {
                 <thead>
                   <tr className="border-b border-border text-left">
                     <th className="py-2">Expected Date</th>
-                    <th className="py-2">RMC Demand (m³)</th>
-                    <th className="py-2">Cement Base (kg)</th>
-                    <th className="py-2">Cement Required (t)</th>
+                    <th className="py-2">RMC Demand (m³/day)</th>
+                    <th className="py-2">Daily Cement Base (kg)</th>
+                    <th className="py-2">Cement Required (t/day)</th>
                     <th className="py-2">Silo Remaining (t)</th>
-                    <th className="py-2">Shortfall (t)</th>
+                    <th className="py-2">Shortfall (t/day)</th>
                   </tr>
                 </thead>
                 <tbody>

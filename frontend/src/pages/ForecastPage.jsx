@@ -45,6 +45,20 @@ const INITIAL_FEATURES = {
   truck_capacity_m3: ""
 };
 
+const FEATURE_LABELS = {
+  project_size: "Project Size (Small/Large)",
+  day_in_project: "Day in Project",
+  cement_kg_m3: "Cement Dosage (kg/m³ RMC)",
+  aggregate_10mm_pct: "10mm Aggregate (%)",
+  aggregate_20mm_pct: "20mm Aggregate (%)",
+  agg_moisture_content_pct: "Agg. Moisture Content (%)",
+  water_binder_ratio: "Water/Binder Ratio",
+  slump_mm: "Slump (mm)",
+  batching_time_min: "Batching Time (min)",
+  transport_time_min: "Transport Time (min)",
+  truck_capacity_m3: "Truck Capacity (m³)"
+};
+
 const MapFallback = () => (
   <div className="flex h-full items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
     Loading map…
@@ -225,7 +239,7 @@ const ForecastPage = () => {
                 .filter((k) => k !== "latitude" && k !== "longitude")
                 .map((key) => (
                   <div key={key}>
-                    <p className="mb-1 text-xs uppercase tracking-wider text-muted-foreground">{key}</p>
+                    <p className="mb-1 text-xs uppercase tracking-wider text-muted-foreground">{FEATURE_LABELS[key] || key}</p>
                     <Input
                       type={key === "project_size" ? "text" : "number"}
                       value={inputFeatures[key]}

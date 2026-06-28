@@ -34,7 +34,7 @@ export const predictDemand = async (days = 7, featureOverrides = {}) => {
     // Fallback logic for ML failure
     const predictions = Array.from({ length: days }).map((_, i) => {
       const date = new Date();
-      date.setDate(date.getDate() + i + 1); // Future dates
+      date.setDate(date.getDate() + i); // Future dates starting today
       return {
         date: date.toISOString().split("T")[0],
         predicted_demand_m3: 1500 + Math.random() * 500, // Safe dummy value between 1500 and 2000

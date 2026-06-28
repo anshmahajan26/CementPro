@@ -135,6 +135,18 @@ const OperatorDashboard = () => {
                             ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Marking...</>
                             : <><CheckCircle size={14} className="mr-1.5" /> Mark Delivered</>}
                         </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={() => {
+                            if (window.confirm("Are you sure you want to mark this order as Not Delivered?")) {
+                              updateStatus(order._id, "CANCELLED");
+                            }
+                          }}
+                          className="w-full text-sm h-9"
+                          disabled={processingOrderId === order._id}
+                        >
+                          Mark Not Delivered
+                        </Button>
                         {order.status !== "EMERGENCY" && (
                           <Button
                             variant="outline"

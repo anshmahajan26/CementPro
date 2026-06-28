@@ -613,7 +613,7 @@ def _build_future_feature_frame(days: int, feature_overrides: Optional[Dict[str,
         raise ValueError("Raw dataset not loaded.")
 
     raw_df = state.raw_df.copy()
-    last_date = raw_df["date"].max()
+    last_date = pd.Timestamp.now().normalize() - pd.Timedelta(days=1)
     base = _future_base_row(raw_df)
     overrides = _sanitize_feature_overrides(feature_overrides)
 
