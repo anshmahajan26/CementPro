@@ -73,12 +73,15 @@ const DashboardPage = () => {
     }
   }, []);
 
-  // Load Emergency Orders
+  // Load Emergency Orders — filters strictly to EMERGENCY status only
   const loadEmergencies = useCallback(async () => {
     try {
       setLoadingEmergencies(true);
       const response = await api.get("/orders");
-      const emergencies = response.data.filter(o => o.status === "EMERGENCY");
+      // Exclude RESOLVED and DELIVERED — only show active emergencies
+      const emergencies = (response.data || []).filter(
+        o => o.status === "EMERGENCY"
+      );
       setEmergencyOrders(emergencies);
     } catch (err) {
       console.error("Failed to load emergency orders:", err);
@@ -105,12 +108,20 @@ const DashboardPage = () => {
     try {
       setResolvingOrderId(orderId);
       await api.put(`/orders/${orderId}/status`, { status: "RESOLVED" });
-      // Show resolved feedback inline, then refresh after 3 seconds
+
+      // Step 1: show the "😊 Issue Resolved!" card immediately
       setResolvedOrderIds(prev => new Set([...prev, orderId]));
-      setTimeout(() => {
-        setResolvedOrderIds(prev => { const next = new Set(prev); next.delete(orderId); return next; });
-        loadEmergencies();
-      }, 3000);
+
+      // Step 2: after 2.5s, re-fetch orders FIRST (order is now RESOLVED → filtered out),
+      // THEN clean up resolvedOrderIds — prevents the card flashing back to "Mark as Resolved"
+      setTimeout(async () => {
+        await loadEmergencies(); // list updates, resolved order is gone
+        setResolvedOrderIds(prev => {
+          const next = new Set(prev);
+          next.delete(orderId);
+          return next;
+        });
+      }, 2500);
     } catch (err) {
       console.error("Failed to resolve emergency:", err);
     } finally {

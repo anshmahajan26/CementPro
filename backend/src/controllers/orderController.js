@@ -104,8 +104,11 @@ export const updateOrderStatus = async (req, res) => {
     } else if (req.user.role === "Manager") {
       // Managers can CANCEL, change to anything, or resolve emergencies
       if (status === "RESOLVED") {
+        // Resolving an emergency resets it to IN_TRANSIT (active but no longer an emergency)
         order.status = "IN_TRANSIT";
         order.emergencyAlert = "";
+        const updatedOrder = await order.save();
+        return res.status(200).json(updatedOrder);
       } else if (status !== "EMERGENCY") {
         order.emergencyAlert = "";
       }
