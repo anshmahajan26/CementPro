@@ -694,6 +694,20 @@ def predict_pipeline(days: int, feature_overrides: Optional[Dict[str, Any]] = No
     xgb_component = state.xgb_model.predict(features) if state.xgb_model is not None else predictions
     rf_component = state.rf_model.predict(features) if state.rf_model is not None else predictions
 
+    base = _future_base_row(state.raw_df) if state.raw_df is not None else {}
+    override_mult = 1.0
+    if sanitized_overrides and base:
+        if "cement_kg_m3" in sanitized_overrides and base.get("cement_kg_m3", 0) > 0:
+            override_mult += ((sanitized_overrides["cement_kg_m3"] - base["cement_kg_m3"]) / base["cement_kg_m3"]) * 0.45
+        if "project_size" in sanitized_overrides and base.get("project_size", 0) > 0:
+            override_mult += ((sanitized_overrides["project_size"] - base["project_size"]) / base["project_size"]) * 0.40
+        if "water_binder_ratio" in sanitized_overrides and base.get("water_binder_ratio", 0) > 0:
+            override_mult += ((base["water_binder_ratio"] - sanitized_overrides["water_binder_ratio"]) / base["water_binder_ratio"]) * 0.25
+        if "slump_mm" in sanitized_overrides and base.get("slump_mm", 0) > 0:
+            override_mult += ((sanitized_overrides["slump_mm"] - base["slump_mm"]) / base["slump_mm"]) * 0.20
+            
+    override_mult = max(0.2, min(override_mult, 3.0))
+
     result = []
     for i in range(days):
         date_obj = future_df.iloc[i]["date"]
@@ -703,9 +717,9 @@ def predict_pipeline(days: int, feature_overrides: Optional[Dict[str, Any]] = No
         daily_variance = 0.82 + (hash_val % 36) / 100.0
         pour_spike = 1.45 if (date_obj.day % 5 == 0) else 1.0
 
-        final_pred = float(round(max(predictions[i] * weekend_factor * daily_variance * pour_spike, 0.0), 3))
-        xgb_val = float(round(max(xgb_component[i] * weekend_factor * daily_variance * pour_spike, 0.0), 3))
-        rf_val = float(round(max(rf_component[i] * weekend_factor * daily_variance * pour_spike, 0.0), 3))
+        final_pred = float(round(max(predictions[i] * weekend_factor * daily_variance * pour_spike * override_mult, 0.0), 3))
+        xgb_val = float(round(max(xgb_component[i] * weekend_factor * daily_variance * pour_spike * override_mult, 0.0), 3))
+        rf_val = float(round(max(rf_component[i] * weekend_factor * daily_variance * pour_spike * override_mult, 0.0), 3))
 
         result.append(
             {

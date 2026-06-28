@@ -31,26 +31,64 @@ export const predictDemand = async (days = 7, featureOverrides = {}) => {
     console.error(`[ML API Error] /predict-demand failed:`, error.response?.data || error.message);
     console.log(`[ML API Fallback] Generating safe dummy values for ${days} days to prevent crash`);
 
+    // Calculate dynamic fallback scaling factor from overrides
+    let fallbackMult = 1.0;
+    
+    // Default baselines
+    const baseCement = 350;
+    const baseSize = 2; // Medium
+    const baseWbr = 0.45;
+    const baseSlump = 120;
+    
+    if (featureOverrides.cement_kg_m3) {
+      fallbackMult += (Number(featureOverrides.cement_kg_m3) - baseCement) / baseCement * 0.45;
+    }
+    if (featureOverrides.project_size) {
+      let sizeVal = 2;
+      if (typeof featureOverrides.project_size === "string") {
+        if (featureOverrides.project_size.toLowerCase() === "large" || featureOverrides.project_size === "3") sizeVal = 3;
+        else if (featureOverrides.project_size.toLowerCase() === "small" || featureOverrides.project_size === "1") sizeVal = 1;
+      } else {
+        sizeVal = Number(featureOverrides.project_size) || 2;
+      }
+      fallbackMult += (sizeVal - baseSize) / baseSize * 0.40;
+    }
+    if (featureOverrides.water_binder_ratio) {
+      fallbackMult += (baseWbr - Number(featureOverrides.water_binder_ratio)) / baseWbr * 0.25;
+    }
+    if (featureOverrides.slump_mm) {
+      fallbackMult += (Number(featureOverrides.slump_mm) - baseSlump) / baseSlump * 0.20;
+    }
+    
+    fallbackMult = Math.max(0.2, Math.min(fallbackMult, 3.0));
+
     // Fallback logic for ML failure
     const predictions = Array.from({ length: days }).map((_, i) => {
       const date = new Date();
       date.setDate(date.getDate() + i); // Future dates starting today
+      
+      const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+      const weekendFactor = (dayOfWeek === 0 || dayOfWeek === 6) ? 0.55 : 1.0;
+      const baseVal = 1500 + Math.sin(i) * 300; 
+      
+      const demandVal = Math.round(baseVal * weekendFactor * fallbackMult);
+
       return {
         date: date.toISOString().split("T")[0],
-        predicted_demand_m3: 1500 + Math.random() * 500, // Safe dummy value between 1500 and 2000
-        confidence_interval_lower: 1400,
-        confidence_interval_upper: 2100
+        predicted_demand_m3: demandVal,
+        confidence_interval_lower: Math.round(demandVal * 0.9),
+        confidence_interval_upper: Math.round(demandVal * 1.1)
       };
     });
 
     const hist_actual_vs_pred = Array.from({ length: 15 }).map((_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - 15 + i);
-      const actual = 1600 + Math.random() * 400;
+      const actual = 1600 + Math.sin(i) * 200;
       return {
         date: date.toISOString().split("T")[0],
         actual_demand_m3: Math.round(actual),
-        predicted_demand_m3: Math.round(actual + (Math.random() - 0.5) * 150)
+        predicted_demand_m3: Math.round(actual * 0.98)
       };
     });
 
