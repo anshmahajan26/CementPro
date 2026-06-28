@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Edit2, Plus, Trash2, Upload, Database, RefreshCw, Key, Shield, Loader2 } from "lucide-react";
+import { Edit2, Plus, Trash2, Upload, Database, RefreshCw, Key, Shield, Loader2, History } from "lucide-react";
 import api from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,11 +39,19 @@ const DataManagementPage = () => {
   const [passwordError, setPasswordError] = useState("");
   const [submittingRecord, setSubmittingRecord] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [orderHistory, setOrderHistory] = useState([]);
 
   const loadDataset = async () => {
     try {
       const response = await api.get("/data");
       setDataset(response.data);
+      
+      try {
+        const historyRes = await api.get("/orders/history");
+        setOrderHistory(historyRes.data);
+      } catch (e) {
+        console.error("Failed to load order history", e);
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load dataset");
     }
@@ -420,6 +428,50 @@ const DataManagementPage = () => {
           </CardContent>
         </Card>
       ) : null}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><History size={20} /> Order History by Operator</CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-auto max-h-[400px]">
+          {orderHistory.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No order history available.</p>
+          ) : (
+            <table className="w-full text-xs md:text-sm">
+              <thead>
+                <tr className="border-b border-border text-left">
+                  <th className="py-2">Date & Time</th>
+                  <th className="py-2">Operator Name</th>
+                  <th className="py-2">Location</th>
+                  <th className="py-2">Cement Type</th>
+                  <th className="py-2">Qty</th>
+                  <th className="py-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orderHistory.map((history) => (
+                  <tr key={history._id} className="border-b border-border/70 hover:bg-secondary/20">
+                    <td className="py-2">{new Date(history.date).toLocaleString()}</td>
+                    <td className="py-2 font-medium">{history.operatorId?.name || "Unknown"}</td>
+                    <td className="py-2">{history.location}</td>
+                    <td className="py-2">{history.cementType}</td>
+                    <td className="py-2">{history.quantity} tons</td>
+                    <td className="py-2">
+                      <span className={`rounded-full px-2 py-1 text-[10px] sm:text-xs font-semibold ${
+                        history.status === "EMERGENCY" ? "bg-red-500/20 text-red-600" :
+                        history.status === "DELIVERED" ? "bg-green-500/20 text-green-600" :
+                        "bg-blue-500/20 text-blue-600"
+                      }`}>
+                        {history.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

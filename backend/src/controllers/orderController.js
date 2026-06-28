@@ -1,4 +1,5 @@
 import { Order } from "../models/Order.js";
+import { OrderHistory } from "../models/OrderHistory.js";
 
 // @desc    Get all orders (Managers see all, Operators see assigned or all if none assigned yet)
 // @route   GET /api/orders
@@ -119,7 +120,38 @@ export const updateOrderStatus = async (req, res) => {
     order.status = status;
     const updatedOrder = await order.save();
 
+    if (req.user.role === "Operator") {
+      await OrderHistory.create({
+        orderId: order._id,
+        operatorId: req.user._id,
+        managerId: order.managerId,
+        location: order.destination || order.plantName,
+        cementType: order.cementType,
+        quantity: order.quantity,
+        status: status
+      });
+    }
+
     res.status(200).json(updatedOrder);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
+// @desc    Get order history
+// @route   GET /api/orders/history
+export const getOrderHistory = async (req, res) => {
+  try {
+    if (req.user.role !== "Manager") {
+      return res.status(403).json({ message: "Only managers can view order history" });
+    }
+    
+    const history = await OrderHistory.find()
+      .populate("operatorId", "name email")
+      .populate("managerId", "name email")
+      .sort({ date: -1 });
+
+    res.status(200).json(history);
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
