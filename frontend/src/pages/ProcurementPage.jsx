@@ -157,22 +157,23 @@ const ProcurementPage = () => {
 
       const resolvedName = await getResolvedLocationName(activeLocation.lat, activeLocation.lon, activeLocation.name);
 
-      // Create an array of daily orders where requirement > 0
+      // Create an array of daily refill orders ONLY when there is a cement load/shortfall required
       const ordersToCreate = data.recommendation
-        .filter(day => day.cement_required_tonnes > 0)
+        .filter(day => day.shortfall_tonnes > 0)
         .map(day => ({
           cementType: cementType,
-          quantity: Math.ceil(day.cement_required_tonnes),
-          destination: `${resolvedName} (${day.date})`
+          quantity: Math.ceil(day.shortfall_tonnes),
+          destination: `${resolvedName} Refill (${day.date})`
         }));
 
       if (ordersToCreate.length === 0) {
-        alert("No deliveries required in the simulated period.");
+        alert("Silo inventory is sufficient for the simulated period. No cement load refills are required, so no orders were dispatched to the Operator.");
+        setIsDispatching(false);
         return;
       }
 
       await api.post("/orders/bulk", { orders: ordersToCreate });
-      alert(`Successfully dispatched ${ordersToCreate.length} daily orders to the Operator!`);
+      alert(`Successfully dispatched ${ordersToCreate.length} cement refill orders to the Operator!`);
     } catch (err) {
       alert("Failed to create orders: " + (err.response?.data?.message || err.message));
     } finally {
