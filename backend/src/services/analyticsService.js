@@ -1,4 +1,4 @@
-const round = (value, precision = 2) => Number(value.toFixed(precision));
+const round = (value, precision = 2) => Number((Number(value) || 0).toFixed(precision));
 
 export const getLatestRecord = (rows) => rows[rows.length - 1] || null;
 
@@ -72,17 +72,17 @@ export const calculateProcurement = (predictions, rows, currentInventoryTonnes =
   // ✅ FIX: Single reduce pass instead of 5 separate passes — O(n) instead of O(5n)
   const totals = rows.reduce(
     (acc, row) => {
-      acc.cement += row.cement_kg_m3;
-      acc.agg10 += row.aggregate_10mm_pct;
-      acc.agg20 += row.aggregate_20mm_pct;
-      acc.moisture += row.agg_moisture_content_pct;
-      acc.wbr += row.water_binder_ratio;
+      acc.cement += Number(row.cement_kg_m3) || 350;
+      acc.agg10 += Number(row.aggregate_10mm_pct) || 45;
+      acc.agg20 += Number(row.aggregate_20mm_pct) || 55;
+      acc.moisture += Number(row.agg_moisture_content_pct) || 2.5;
+      acc.wbr += Number(row.water_binder_ratio) || 0.45;
       return acc;
     },
     { cement: 0, agg10: 0, agg20: 0, moisture: 0, wbr: 0 }
   );
 
-  const n = rows.length;
+  const n = Math.max(rows.length, 1);
   const avgCementKgM3 = totals.cement / n;
   const avgAgg10 = totals.agg10 / n;
   const avgAgg20 = totals.agg20 / n;
@@ -191,17 +191,18 @@ export const calculateProcurement = (predictions, rows, currentInventoryTonnes =
 export const calculateCarbon = (predictions, rows, procurement, blendFactor = 0.92) => {
   const { totalTransport, totalTruckCapacity, totalBatchingTime } = rows.reduce(
     (acc, row) => {
-      acc.totalTransport += row.transport_time_min;
-      acc.totalTruckCapacity += row.truck_capacity_m3;
-      acc.totalBatchingTime += row.batching_time_min;
+      acc.totalTransport += Number(row.transport_time_min) || 45;
+      acc.totalTruckCapacity += Number(row.truck_capacity_m3) || 8;
+      acc.totalBatchingTime += Number(row.batching_time_min) || 30;
       return acc;
     },
     { totalTransport: 0, totalTruckCapacity: 0, totalBatchingTime: 0 }
   );
 
-  const avgTransport = totalTransport / rows.length;
-  const avgTruckCapacity = totalTruckCapacity / rows.length;
-  const avgBatchingTime = totalBatchingTime / rows.length;
+  const n = Math.max(rows.length, 1);
+  const avgTransport = totalTransport / n;
+  const avgTruckCapacity = totalTruckCapacity / n;
+  const avgBatchingTime = totalBatchingTime / n;
 
   const daily = procurement.recommendation.map((item) => {
     const transportTrips = item.predicted_demand_m3 / Math.max(avgTruckCapacity, 1);
